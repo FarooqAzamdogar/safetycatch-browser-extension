@@ -22,7 +22,7 @@ export interface ScopeGroup {
   severity: RiskLevel;
 }
 
-export const MAX_SCOPES = 60;
+const MAX_SCOPES = 60;
 
 const BASIC_RE =
   /^(?:openid|profile|email|user\.read|user:email|read:user|identify|userinfo\.(?:email|profile)|https:\/\/www\.googleapis\.com\/auth\/userinfo\.(?:email|profile)|account_info\.read|users:read|identity\.basic|identity\.email)$/i;

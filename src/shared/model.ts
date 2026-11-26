@@ -12,8 +12,8 @@ import { isLevel, type RiskLevel } from './levels.ts';
 import { isModuleId, type ModuleId } from './modules.ts';
 import { clip } from './text.ts';
 
-export const WARNING_KINDS = ['paste-block', 'paste-notice', 'unchecked', 'login', 'login-banner', 'auth', 'auth-banner', 'lure', 'ai-paste', 'ai-unchecked', 'download', 'info'] as const;
-export type WarningKind = (typeof WARNING_KINDS)[number];
+const WARNING_KINDS = ['paste-block', 'paste-notice', 'unchecked', 'login', 'login-banner', 'auth', 'auth-banner', 'lure', 'ai-paste', 'ai-unchecked', 'download', 'info'] as const;
+type WarningKind = (typeof WARNING_KINDS)[number];
 
 export const BUTTON_IDS = ['keep', 'clear', 'restore', 'leave', 'stay', 'continue', 'ok', 'redact', 'anyway', 'cancel', 'paste', 'resume', 'delete'] as const;
 export type ButtonId = (typeof BUTTON_IDS)[number];

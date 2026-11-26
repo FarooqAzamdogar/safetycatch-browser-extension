@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { ICON_SIZES, iconPng } from './icons.ts';
 import { localeFolders, messagesJson } from './locales.ts';
 import { buildManifest, TARGETS, type Target } from './manifest.ts';
+import { engineTablesSource, TABLES_FILE } from './engine-tables.ts';
 import { createZip, type ZipEntry } from './zip.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -20,10 +21,11 @@ const dist = join(root, 'dist');
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as { version: string; name: string };
 
 /** Size limits in bytes. They catch accidents such as the engine being pulled into a per-page script. */
-const BUDGETS: Readonly<Record<string, number>> = { 'content-main.js': 12_000, 'content.js': 80_000, 'popup.js': 40_000, 'options.js': 40_000, 'download.js': 60_000, 'background.js': 700_000 };
+const BUDGETS: Readonly<Record<string, number>> = { 'content-main.js': 12_000, 'content.js': 80_000, 'content-frame.js': 30_000, 'popup.js': 40_000, 'options.js': 40_000, 'download.js': 60_000, 'background.js': 700_000 };
 
 const ENTRIES = {
   background: 'src/background/service-worker.ts',
+  // Top frame only: everything, including the warning UI.
   content: 'src/content/isolated.ts',
   'content-main': 'src/content/main-world.ts',
   popup: 'src/pages/popup.ts',
@@ -38,9 +40,8 @@ function walk(dir: string): string[] {
 async function buildTarget(target: Target): Promise<Array<[string, number]>> {
   const out = join(dist, target);
   mkdirSync(out, { recursive: true });
-  await build({
+  const common = {
     absWorkingDir: root,
-    entryPoints: ENTRIES,
     outdir: out,
     bundle: true,
     format: 'iife',
@@ -51,7 +52,11 @@ async function buildTarget(target: Target): Promise<Array<[string, number]>> {
     legalComments: 'none',
     charset: 'utf8',
     logLevel: 'warning',
-  });
+  } as const;
+  await build({ ...common, entryPoints: ENTRIES, define: { __TOP_FRAME__: 'true' } });
+  // Every frame: the copy, paste and AI-paste guards without the UI and the top-frame checks
+  // (see src/content/frame.ts). Built separately because __TOP_FRAME__ differs.
+  await build({ ...common, entryPoints: { 'content-frame': 'src/content/frame.ts' }, define: { __TOP_FRAME__: 'false' } });
   const maps = join(dist, 'sourcemaps', target);
   mkdirSync(maps, { recursive: true });
   for (const file of readdirSync(out)) if (file.endsWith('.map')) renameSync(join(out, file), join(maps, file));
@@ -81,6 +86,13 @@ async function buildTarget(target: Target): Promise<Array<[string, number]>> {
   writeFileSync(join(dist, zipName), zip);
   sizes.push([zipName, zip.length]);
   return sizes;
+}
+
+// The content scripts' pre-filter tables come from the linked engine; keep them current.
+const tables = engineTablesSource();
+if (readFileSync(TABLES_FILE, 'utf8') !== tables) {
+  writeFileSync(TABLES_FILE, tables);
+  console.log('updated src/shared/engine-tables.ts from the engine');
 }
 
 rmSync(dist, { recursive: true, force: true });

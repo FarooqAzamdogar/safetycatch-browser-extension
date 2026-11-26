@@ -5,7 +5,7 @@ import { sanitizeTrustList, type TrustEntry } from './allowlist.ts';
 import { MODULE_IDS, type ModuleId } from './modules.ts';
 import { formatSitePattern, parseSitePattern } from './sites.ts';
 
-export const SETTINGS_VERSION = 1;
+const SETTINGS_VERSION = 1;
 export const SETTINGS_KEY = 'settings';
 
 /** `auto` follows the browser language. */

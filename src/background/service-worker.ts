@@ -60,6 +60,11 @@ const core = createCore({
     const reply = await chrome.tabs.sendMessage(tabId, push, { frameId: 0 });
     return typeof reply === 'object' && reply !== null && (reply as { ok?: unknown }).ok === true;
   },
+  askInTop: async (tabId, push) => {
+    const reply = await chrome.tabs.sendMessage(tabId, push, { frameId: 0 });
+    const id = typeof reply === 'object' && reply !== null ? (reply as { id?: unknown }).id : null;
+    return typeof id === 'string' ? id : null;
+  },
   leaveTab: async (tabId) => {
     await chrome.tabs.update(tabId, { url: 'about:blank' });
     return true;

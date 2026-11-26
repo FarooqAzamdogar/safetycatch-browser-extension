@@ -95,18 +95,20 @@ Not requested: `tabs`, `scripting`, `notifications`, `clipboardRead`, `history`,
  every page, every frame                        once per browser
 ┌──────────────────────────────┐  messages   ┌─────────────────────────────┐
 │ content-main.js  (5 KB)      │             │ background.js (service      │
-│   page world: clipboard hooks│             │ worker, 475 KB)             │
+│   page world: clipboard hooks│             │ worker, 529 KB)             │
 │        │ private channel     │   only when │   safetycatch-engine        │
-│ content.js       (37 KB)     │──a cheap───▶│   decisions, wording,       │
+│ top frame: content.js (40 KB)│──a cheap───▶│   decisions, wording,       │
 │   pre-filters, copy/paste/   │  pre-filter │   settings, navigation      │
 │   password watchers, warning │   says so   │   chain, downloads          │
 │   UI in a closed shadow root │◀────────────│                             │
-└──────────────────────────────┘  verdict +  └─────────────────────────────┘
-                                  warning text
+│ sub-frames: content-frame.js │  verdict +  │                             │
+│   (21 KB) same guards, no UI;│  warning    │                             │
+│   warnings shown by the top  │  text       │                             │
+└──────────────────────────────┘             └─────────────────────────────┘
 ```
 
 - **The engine runs in the service worker, not in pages.** Pages get two small scripts. They watch for the few risky actions and run cheap local pre-filters; only a hit is sent to the service worker. On an ordinary page no message is sent at all. Inside the worker the slowest engine step (reading a page's instructions, which costs a second or more the first time after the worker wakes) is skipped whenever it could not change the outcome.
-- **Measured cost.** On a local page with 1,500 paragraphs and 3 iframes (four frames in all), headless Chrome 157, median of 15 loads with and without the extension. Three runs on a busy 16 GB laptop gave **+7, +15 and +18 ms at `DOMContentLoaded`** (for example 26.1 ms without and 32.8 ms with) and **-3, +17 and +47 ms at `load`**. That is the two scripts starting in four frames, a few milliseconds per frame; the spread shows how much the figures move with other load on the machine. A cold service worker answered its first request in about 0.8 s. Reproduce with `pnpm run smoke -- --perf`.
+- **Measured cost.** On a local page with 1,500 paragraphs and 3 iframes (four frames in all), headless Chrome 157, median of 15 loads with and without the extension: **+3.4 to +3.8 ms at `DOMContentLoaded` and +6.7 to +6.8 ms at `load`** (before sub-frames got their own smaller script: +4.9 and +17.7 ms on the same day). Sub-frames, often many on pages with ads or embedded widgets, now get a 21 KB script instead of 38 KB. Details and method: [docs/PERFORMANCE.md](docs/PERFORMANCE.md). Reproduce with `pnpm run smoke -- --perf`.
 - **Fail safe.** If the service worker is asleep it is woken by the message. If it cannot answer in time (still starting, crashed, extension being updated, machine out of memory), the content script shows a neutral "could not check" state, never "safe"; a copied text that looks like a download-and-run command is still neutralised using a small local check. (This path was seen working in the real-browser test when the test machine ran out of memory: the copy was cleared and the warning read "Not checked".)
 - **Hostile pages.** Hooks are installed before any page script and use only private references taken at start-up; warnings live in a closed shadow root; synthetic clicks are ignored; the clipboard is neutralised before the warning is drawn, so a page that manages to hide the warning gains nothing. See [THREAT_MODEL.md](THREAT_MODEL.md).
 
@@ -115,7 +117,7 @@ More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 ## Development
 
 ```bash
-pnpm run check      # typecheck + 232 unit tests + build of both browser targets
+pnpm run check      # typecheck + 237 unit tests + build of both browser targets
 pnpm run smoke      # real-browser test: loads dist/chrome into headless Chrome or Edge
 pnpm run serve      # serves the harmless test pages on http://localhost:8377/
 ```

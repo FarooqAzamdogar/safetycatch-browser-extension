@@ -1,0 +1,5 @@
+{
+  "entry": ["src/background/service-worker.ts", "src/content/isolated.ts", "src/content/frame.ts", "src/content/main-world.ts", "src/pages/popup.ts", "src/pages/options.ts", "src/pages/download.ts", "test/pages/*.js"],
+  "project": ["src/**/*.ts", "scripts/**/*.ts", "test/**/*.ts"],
+  "ignoreBinaries": ["taskkill.exe"]
+}

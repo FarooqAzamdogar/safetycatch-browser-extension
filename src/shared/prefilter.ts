@@ -9,6 +9,7 @@
  * are capped before matching.
  */
 
+import { AUTH_HINTS } from './engine-tables.ts';
 import { clip, hasHidden } from './text.ts';
 
 const MAX_SCAN = 20_000;
@@ -90,11 +91,24 @@ export function mightHoldSecret(text: unknown): boolean {
   return SECRET_HINT_RE.test(text) || SEED_SHAPE_RE.test(text);
 }
 
-const AUTH_HOST_RE =
-  /^(?:(?:www\.)?microsoft\.com|aka\.ms|login\.microsoftonline\.com|login\.microsoft\.com|login\.live\.com|github\.com|(?:www\.|accounts\.)?google\.com|device\.sso\.[a-z0-9-]{2,30}\.amazonaws\.com|[a-z0-9-]{1,63}\.awsapps\.com|[a-z0-9-]{1,63}\.okta(?:preview)?\.com|[a-z0-9-]{1,63}(?:\.[a-z]{2})?\.auth0\.com|slack\.com|(?:www\.)?dropbox\.com|discord\.com)$/;
-const AUTH_PATH_RE = /devicelogin|^\/link(?:\/|$)|deviceauth|remoteconnect|\/login\/device|^\/device(?:\/|$)|^\/activate|^\/start|oauth|authorize|adminconsent/;
+/** One sign-in endpoint path, with `{tenant}` standing for one path segment (same rule as the engine). */
+function authPathMatches(pattern: string, path: string): boolean {
+  if (pattern === '/') return true;
+  if (!pattern.includes('{tenant}')) return path === pattern || path.startsWith(pattern.endsWith('/') ? pattern : `${pattern}/`);
+  const [before = '', after = ''] = pattern.split('{tenant}');
+  if (!path.startsWith(before)) return false;
+  const rest = path.slice(before.length);
+  const slash = rest.indexOf('/');
+  if (slash < 1 || slash > 128) return false;
+  const tail = rest.slice(slash);
+  return tail === after || tail.startsWith(after.endsWith('/') ? after : `${after}/`);
+}
 
-/** Could this address be a device-code or app-approval (OAuth) page? The engine decides. */
+/**
+ * Could this address be a device-code or app-approval (OAuth) page? The engine
+ * decides; the endpoint list comes from the engine's own tables
+ * (scripts/engine-tables.ts).
+ */
 export function isAuthUrlCandidate(url: unknown): boolean {
   if (typeof url !== 'string' || url.length > 8000) return false;
   let u: URL;
@@ -105,8 +119,8 @@ export function isAuthUrlCandidate(url: unknown): boolean {
   }
   if (u.protocol !== 'https:' && u.protocol !== 'http:') return false;
   const host = u.hostname.toLowerCase();
-  if (!AUTH_HOST_RE.test(host)) return false;
-  return host.startsWith('device.sso.') || AUTH_PATH_RE.test(u.pathname.toLowerCase());
+  const path = u.pathname.toLowerCase();
+  return AUTH_HINTS.some((e) => (e.host !== undefined ? e.host === host : e.hostRe?.test(host) === true) && e.paths.some((p) => authPathMatches(p, path)));
 }
 
 const INSTRUCTION_HINT_RE =
@@ -115,16 +129,4 @@ const INSTRUCTION_HINT_RE =
 /** Does page text mention pasting, running or downloading at all? Used only on publish-anything platforms. */
 export function hasInstructionHint(text: unknown): boolean {
   return typeof text === 'string' && INSTRUCTION_HINT_RE.test(clip(text, MAX_SCAN));
-}
-
-const DOWNLOAD_STEP_RE =
-  /\b(?:download|install)\b[^.!?\n]{0,120}\b(?:run|open|launch|execute|double[- ]click)\b|\b(?:run|open|launch|execute|double[- ]click)\b[^.!?\n]{0,80}(?:\bdownloaded\b|\binstaller\b|\bsetup file\b|\.exe\b|\.msi\b|\.dmg\b|\.pkg\b|\.apk\b|\.zip\b)/i;
-
-/**
- * "Download this and run it" instructions (English only). The engine's page
- * analyzer covers paste-and-run steps but not download-and-run steps, so the
- * trusted-platform notice uses this small extra check.
- */
-export function hasDownloadStep(text: unknown): boolean {
-  return typeof text === 'string' && DOWNLOAD_STEP_RE.test(clip(text, MAX_SCAN));
 }

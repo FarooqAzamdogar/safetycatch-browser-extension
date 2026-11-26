@@ -193,7 +193,7 @@ export interface AuthInfo {
 }
 
 /** Plain-language list of what an app asks for. */
-export function scopeLines(c: ModelContext, meta: unknown): string[] {
+function scopeLines(c: ModelContext, meta: unknown): string[] {
   const lines: string[] = [];
   for (const g of groupScopes(parseScopes(meta))) {
     const names = g.scopes.slice(0, 6).join(', ');

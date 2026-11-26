@@ -8,9 +8,11 @@
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { analyzeAuthFlow, analyzeCommand, analyzeUrl, DEVICE_CODE_ENDPOINTS, OAUTH_ENDPOINTS, PLATFORMS, scanSecrets } from 'safetycatch-engine';
+import { readFileSync } from 'node:fs';
+import { analyzeAuthFlow, analyzeCommand, analyzePageText, analyzeUrl, DEVICE_CODE_ENDPOINTS, OAUTH_ENDPOINTS, PLATFORMS, scanSecrets } from 'safetycatch-engine';
+import { engineTablesSource, TABLES_FILE } from '../scripts/engine-tables.ts';
 import { isPlatformHint } from '../src/shared/platform-hints.ts';
-import { hasDownloadStep, hasInstructionHint, isAuthUrlCandidate, looksRunnable, mightHoldSecret, needsCommandCheck } from '../src/shared/prefilter.ts';
+import { hasInstructionHint, isAuthUrlCandidate, looksRunnable, mightHoldSecret, needsCommandCheck } from '../src/shared/prefilter.ts';
 import { formatSitePattern, hostOf, isHttpUrl, matchesSite, originPath, parseSitePattern } from '../src/shared/sites.ts';
 import { DEFAULT_AI_SITES } from '../src/shared/settings.ts';
 import { arm, clickFixSample, fakeToken, harmlessLure } from './helpers.ts';
@@ -179,12 +181,16 @@ test('instruction hint: paste, run and download wording in several languages', (
   assert.equal(hasInstructionHint(undefined), false);
 });
 
-test('download-and-run steps are recognised, plain mentions of downloads are not', () => {
-  assert.equal(hasDownloadStep('To fix this problem, download the repair tool below, then open the downloaded installer and choose Run anyway.'), true);
-  assert.equal(hasDownloadStep('Install the update and run it as administrator.'), true);
-  assert.equal(hasDownloadStep('Double-click the setup.exe you saved.'), true);
-  assert.equal(hasDownloadStep('You can download our annual report as a PDF.'), false);
-  assert.equal(hasDownloadStep('We run a marathon every year.'), false);
+test('download-and-run steps are found by the engine (the extension no longer has its own English-only check)', () => {
+  const steps = (text: string): string[] => analyzePageText(text, { url: 'https://safetycatch-test.weebly.com/' }).findings.map((f) => f.ruleId).filter((id) => id !== 'page.ugc-host');
+  assert.ok(steps('To fix this problem, download the repair tool below, then open the downloaded installer and choose Run anyway.').includes('page.combo.download-lure'));
+  assert.ok(steps('Double-click the setup.exe you saved.').includes('page.download-run'));
+  assert.deepEqual(steps('You can download our annual report as a PDF.'), []);
+  assert.deepEqual(steps('We run a marathon every year.'), []);
+});
+
+test('the pre-filter tables are generated from the engine and up to date (run "node scripts/engine-tables.ts")', () => {
+  assert.equal(readFileSync(TABLES_FILE, 'utf8'), engineTablesSource());
 });
 
 test('sites: AI-chat patterns are parsed and matched by host and path', () => {

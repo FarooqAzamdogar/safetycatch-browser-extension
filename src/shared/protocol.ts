@@ -33,7 +33,11 @@ export type ContentRequest =
   | { type: 'check-secrets'; text: string }
   | { type: 'report'; module: ModuleId; action: HistoryAction; level: RiskLevel; ruleIds: string[] }
   | { type: 'ack'; scope: 'auth' | 'login' }
-  | { type: 'leave' };
+  | { type: 'leave' }
+  /** From a sub-frame (which has no warning UI of its own): show this warning in the top frame and return the button pressed. */
+  | { type: 'ask-top'; model: unknown }
+  /** From a sub-frame: show this notice in the top frame. */
+  | { type: 'show-top'; model: unknown };
 
 export type DownloadChoice = 'resume' | 'cancel' | 'delete' | 'keep';
 
@@ -86,6 +90,12 @@ export interface ShowPush {
   note: string;
 }
 
+/** Service worker to the top frame of a tab: show a warning for a sub-frame and answer with the button pressed. */
+export interface AskPush {
+  type: 'ask';
+  model: unknown;
+}
+
 const s = (v: unknown, max: number): string => (typeof v === 'string' ? clip(v, max) : '');
 
 /** Validate a message from a content script. Returns null for anything unexpected. */
@@ -115,6 +125,10 @@ export function parseContentRequest(raw: unknown): ContentRequest | null {
       return r['scope'] === 'auth' || r['scope'] === 'login' ? { type: 'ack', scope: r['scope'] } : null;
     case 'leave':
       return { type: 'leave' };
+    case 'ask-top':
+    case 'show-top':
+      // The model is checked again (parseModel) by the top frame before anything is shown.
+      return typeof r['model'] === 'object' && r['model'] !== null ? { type: r['type'], model: r['model'] } : null;
     default:
       return null;
   }
@@ -153,7 +167,7 @@ export function parsePageRequest(raw: unknown): PageRequest | null {
 }
 
 /** Names of the request types a content script may send. Everything else needs an extension page as sender. */
-export const CONTENT_TYPES: readonly string[] = ['check-clipboard', 'check-login', 'check-auth', 'check-page', 'check-secrets', 'report', 'ack', 'leave'];
+export const CONTENT_TYPES: readonly string[] = ['check-clipboard', 'check-login', 'check-auth', 'check-page', 'check-secrets', 'report', 'ack', 'leave', 'ask-top', 'show-top'];
 
 export function isContentType(raw: unknown): boolean {
   return typeof raw === 'object' && raw !== null && CONTENT_TYPES.includes((raw as Record<string, unknown>)['type'] as string);

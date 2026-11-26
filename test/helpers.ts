@@ -11,7 +11,7 @@
 import * as engine from 'safetycatch-engine';
 import { createCore, type Core, type CoreDeps, type Engine, type KeyValue } from '../src/background/core.ts';
 import { LOCALE_FOLDERS, UI_LOCALES, type UiLocale } from '../src/shared/i18n.ts';
-import type { ShowPush } from '../src/shared/protocol.ts';
+import type { AskPush, ShowPush } from '../src/shared/protocol.ts';
 import { messagesJson } from '../scripts/locales.ts';
 
 /** Remove the "¦" fragment markers. */
@@ -66,6 +66,9 @@ export interface Harness {
   session: ReturnType<typeof memoryStore>;
   /** Warnings handed to the top frame. */
   shown: ShowPush[];
+  /** Warnings a sub-frame asked the top frame to show; the harness answers with `askAnswer`. */
+  asked: AskPush[];
+  askAnswer: string | null;
   /** Tabs sent away from a page. */
   left: number[];
   /** Jobs the core asked to run later. */
@@ -82,6 +85,8 @@ export function harness(overrides: Partial<CoreDeps> = {}, local: Record<string,
     local: memoryStore(local),
     session: memoryStore(),
     shown: [],
+    asked: [],
+    askAnswer: 'cancel',
     left: [],
     deferred: [],
     advance: (ms) => {
@@ -99,6 +104,10 @@ export function harness(overrides: Partial<CoreDeps> = {}, local: Record<string,
     showInTop: async (_tabId, push) => {
       h.shown.push(push);
       return true;
+    },
+    askInTop: async (_tabId, push) => {
+      h.asked.push(push);
+      return h.askAnswer;
     },
     leaveTab: async (tabId) => {
       h.left.push(tabId);

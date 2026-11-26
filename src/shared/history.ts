@@ -21,7 +21,7 @@ export interface HistoryEntry {
   a: HistoryAction;
 }
 
-export const HISTORY_ACTIONS = ['blocked', 'warned', 'noticed', 'unchecked', 'restored', 'proceeded', 'redacted', 'cancelled'] as const;
+const HISTORY_ACTIONS = ['blocked', 'warned', 'noticed', 'unchecked', 'restored', 'proceeded', 'redacted', 'cancelled'] as const;
 export type HistoryAction = (typeof HISTORY_ACTIONS)[number];
 
 export const HISTORY_KEY = 'history';

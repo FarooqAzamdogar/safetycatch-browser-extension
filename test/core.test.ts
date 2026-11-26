@@ -572,3 +572,34 @@ test('downloads: a file that finished before it could be paused can be deleted o
   assert.deepEqual(await h.core.handlePage({ type: 'download-choice', id: 31, choice: 'keep' }), { ok: true, ops: [] });
   assert.equal((await history(h))[0]?.a, 'proceeded');
 });
+
+test('a sub-frame warning is shown by the top frame, and the button pressed there is passed back', async () => {
+  const h = harness();
+  h.askAnswer = 'redact';
+  const warning = { kind: 'ai-paste', level: 'high', title: 't', body: 'b', buttons: [] };
+  const r = (await h.core.handleContent({ type: 'ask-top', model: warning }, from(PAGE, 5, 7))) as { id: string | null };
+  assert.equal(r.id, 'redact');
+  assert.equal(h.asked.length, 1);
+  assert.deepEqual(h.asked[0], { type: 'ask', model: warning });
+  // The top frame has its own UI: it never relays to itself.
+  assert.deepEqual(await h.core.handleContent({ type: 'ask-top', model: warning }, from(PAGE, 5, 0)), { id: null });
+  assert.equal(h.asked.length, 1);
+  const shown = (await h.core.handleContent({ type: 'show-top', model: warning }, from(PAGE, 5, 7))) as { ok: boolean };
+  assert.equal(shown.ok, true);
+  assert.deepEqual(h.shown.at(-1), { type: 'show', model: warning, text: '', note: '' });
+});
+
+test('a sub-frame warning that the top frame cannot show gets no answer (the held-back action does not happen)', async () => {
+  const h = harness({ askInTop: async () => Promise.reject(new Error('no receiver')) });
+  const r = (await h.core.handleContent({ type: 'ask-top', model: { kind: 'info' } }, from(PAGE, 5, 7))) as { id: string | null };
+  assert.equal(r.id, null);
+});
+
+test('AI paste: the redacted copy hides the key but leaves an e-mail address readable', async () => {
+  const h = harness();
+  const token = fakeToken();
+  const r = (await h.core.handleContent({ type: 'check-secrets', text: `Contact sam@example.com, key ${token}` }, from('https://chatgpt.com/c/1'))) as SecretsReply;
+  assert.equal(r.action, 'prompt');
+  assert.ok(r.redacted?.includes('sam@example.com'), r.redacted);
+  assert.ok(!r.redacted?.includes(token));
+});

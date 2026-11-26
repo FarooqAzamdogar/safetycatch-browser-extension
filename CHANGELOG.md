@@ -8,6 +8,13 @@ All notable changes to this project are documented in this file. The format is b
 
 - Switched from npm to pnpm 11 (`packageManager: pnpm@11.29.0`, `pnpm-lock.yaml`). pnpm keeps one shared copy of each package on disk and hard-links it into every project, which cut the suite's dependency footprint on a development PC. pnpm 11 is used because it is plain JavaScript; pnpm 12 ships an unsigned native executable. Dependency install scripts are not allowed to run (`pnpm-workspace.yaml`). Package scripts chain with `node --run`. The engine is now linked live (`link:../safetycatch-engine`) instead of copied.
 - CI uses `pnpm/action-setup` and current pinned versions of `actions/checkout` and `actions/setup-node`.
+- Smaller script in sub-frames: `content.js` (with the warning UI and the sign-in, device-code and platform checks) now runs in the top frame only, and every frame gets `content-frame.js` (21 KB instead of 38 KB: the same copy, paste and AI-paste guards without the UI). A sub-frame's warning is shown by the top frame through the service worker, which also returns the button pressed; if the top frame cannot be reached, a held-back paste is not inserted. No new permission. On the 3-iframe test page the added time at `load` fell from +17.7 ms to about +6.8 ms (`docs/PERFORMANCE.md`).
+- Requires safetycatch-engine 0.1.1 or later. Removed work-arounds for engine 0.1.0: the English-only "download and run" check on publish-anything platforms (the engine's `page.download-run` and `page.combo.download-lure` rules cover it, in more languages); probing `<brand>.com` for a brand's real address (the engine's `params.official` and `meta.brand` give it); hand-made copies of the engine's platform and sign-in endpoint lists in the content script (now generated from the engine's exported `PLATFORMS`, `DEVICE_CODE_ENDPOINTS` and `OAUTH_ENDPOINTS` by `scripts/engine-tables.ts`, checked by a test). The AI-chat redaction now hides keys, passwords, card and ID numbers but leaves e-mail addresses and other low findings readable (`scanSecrets(text, { redactMinSeverity: 'medium' })`).
+- The smoke test closes the whole browser tree and deletes its temporary profile also after a failure or Ctrl+C, and removes leftovers of a killed run at the next start (`scripts/browser.ts`, same approach as safetycatch-photo-privacy).
+
+### Removed
+
+- Unused code: an unused parameter in `scripts/smoke.ts` and 14 exports only used inside their own module. `noUnusedLocals` and `noUnusedParameters` are on, and `pnpm run knip` (Knip, run in CI on Linux) checks for unused files, exports and dependencies.
 
 ## [0.1.0] - 2026-11-26
 

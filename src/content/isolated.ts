@@ -2,7 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * Content script (isolated world, document_start, every frame).
+ * Content script (isolated world, document_start). Built twice: content.js for
+ * the top frame (with the warning UI and the top-frame-only checks: sign-in
+ * pages, device-code and consent pages, trusted-platform lures) and
+ * content-frame.js for sub-frames (copy, paste and AI-paste guards only; its
+ * warnings are shown by the top frame, see ui-relay.ts). `__TOP_FRAME__` is
+ * replaced at build time, so the parts of the other build are left out.
  *
  * It is deliberately thin: it watches for the few risky actions, runs cheap
  * local pre-filters, and asks the service worker (where the detection engine
@@ -27,19 +32,33 @@ import { clip, displaySample } from '../shared/text.ts';
 import { createIsoChannel } from './channel-iso.ts';
 import { deepActive, insertText, saveTarget } from './insert.ts';
 import { createUi, type ModalHandle } from './ui.ts';
+import { createRelayUi } from './ui-relay.ts';
 
 const w = window;
 const doc = document;
-let isTop = false;
-try {
-  isTop = w.top === w;
-} catch {
-  isTop = false;
-}
 
 /** False once the extension was updated, disabled or removed while this page stayed open. */
 let alive = true;
-const ui = createUi(w, doc);
+/**
+ * content-frame.js is also injected into the top frame (a manifest cannot ask for "sub-frames
+ * only"), where content.js does the work: that copy stays idle. It must start synchronously in a
+ * sub-frame, because a page can create a frame and use its clipboard functions at once.
+ */
+let idle = false;
+if (!__TOP_FRAME__) {
+  try {
+    idle = w.top === w;
+  } catch {
+    idle = false; // a cross-origin top frame can throw on access: this is a sub-frame
+  }
+}
+
+const ui = __TOP_FRAME__
+  ? createUi(w, doc)
+  : createRelayUi(
+      (model) => ask<{ id?: unknown }>({ type: 'ask-top', model }, 10 * 60_000).then((r) => r?.id ?? null),
+      (model) => tell({ type: 'show-top', model }),
+    );
 
 // ---------------------------------------------------------------- service worker
 
@@ -51,7 +70,7 @@ function stillAlive(): boolean {
     // extension context is gone
   }
   alive = false;
-  channel.passive(); // let the page's clipboard calls through untouched
+  channel?.passive(); // let the page's clipboard calls through untouched
   return false;
 }
 
@@ -388,13 +407,13 @@ function onUp(m: UpMessage): void {
     case 'w':
     case 'W':
       if (!alive || !needsCommandCheck(m.text)) {
-        channel.reply(m.id, true); // answered during the page's own call: nothing is delayed
+        channel?.reply(m.id, true); // answered during the page's own call: nothing is delayed
         return;
       }
       void guardWrite(m.text, 'programmatic').then(
-        (action) => channel.reply(m.id, action !== 'block'),
+        (action) => channel?.reply(m.id, action !== 'block'),
         // An error of our own is "could not check": refuse what looks like a command, let the rest through.
-        () => channel.reply(m.id, !looksRunnable(m.text)),
+        () => channel?.reply(m.id, !looksRunnable(m.text)),
       );
       return;
     case 's':
@@ -457,7 +476,7 @@ function loadSettings(): void {
 }
 
 function topHost(): string {
-  if (isTop) return location.hostname;
+  if (__TOP_FRAME__) return location.hostname;
   try {
     const origins = location.ancestorOrigins;
     const top = origins && origins.length > 0 ? origins[origins.length - 1] : undefined;
@@ -566,7 +585,7 @@ function showLoginModal(): void {
 }
 
 function checkLogin(): void {
-  if (!isTop || !stillAlive() || login.state === 'checking' || login.checks >= 5) return;
+  if (!__TOP_FRAME__ || !stillAlive() || login.state === 'checking' || login.checks >= 5) return;
   if (login.state === 'done' && login.href === location.href) return;
   login.state = 'checking';
   login.href = location.href;
@@ -598,7 +617,7 @@ function checkLogin(): void {
 
 /** Stop typing into a password field on a page judged to be a look-alike, and show why. */
 function loginBlocks(e: Event): boolean {
-  if (!isTop || !alive || !isPassword(eventField(e))) return false;
+  if (!__TOP_FRAME__ || !alive || !isPassword(eventField(e))) return false;
   if (login.state === 'idle' || (login.state === 'done' && login.href !== location.href)) checkLogin();
   if (login.ui !== 'intercept' || login.acked || !login.model) return false;
   if (e.type !== 'focusin') {
@@ -624,7 +643,7 @@ function scanForPassword(): void {
 let authHref = '';
 let authTries = 0;
 function checkAuth(): void {
-  if (!isTop || authHref === location.href || !isAuthUrlCandidate(location.href)) return;
+  if (!__TOP_FRAME__ || authHref === location.href || !isAuthUrlCandidate(location.href)) return;
   authHref = location.href;
   void ask<AuthReply>({ type: 'check-auth', referrer: doc.referrer }, PASSIVE_TIMEOUT_MS).then((reply) => {
     if (!reply && ++authTries < 3) {
@@ -654,7 +673,7 @@ function checkAuth(): void {
 let lureTries = 0;
 let lureDone = false;
 function checkLure(): void {
-  if (!isTop || lureDone || lureTries >= 3 || !stillAlive() || !isPlatformHint(location.hostname, location.pathname)) return;
+  if (!__TOP_FRAME__ || lureDone || lureTries >= 3 || !stillAlive() || !isPlatformHint(location.hostname, location.pathname)) return;
   lureTries++;
   const text = pageText(LIMITS.pageText);
   if (!hasInstructionHint(text)) return;
@@ -673,7 +692,7 @@ function poke(): void {
   const now = Date.now();
   if (now - lastVerify > 1000) {
     lastVerify = now;
-    channel.verify(); // "re-check on use": are our clipboard hooks still in place?
+    channel?.verify(); // "re-check on use": are our clipboard hooks still in place?
   }
 }
 
@@ -693,33 +712,35 @@ function onTrusted(e: Event): void {
   else loginBlocks(e);
 }
 
-const channel = createIsoChannel(w, (bytes) => crypto.getRandomValues(bytes), onUp);
+const channel = idle ? null : createIsoChannel(w, (bytes) => crypto.getRandomValues(bytes), onUp);
 
 /** (Re-)attach every listener. Adding the same listener twice is a no-op, so this is safe to repeat. */
 function attach(): void {
-  channel.ensure();
+  channel?.ensure();
   for (const type of ['copy', 'cut', 'beforecopy', 'beforecut']) w.addEventListener(type, onCopyCapture, true);
   w.addEventListener('copy', onCopyBubble, false);
   w.addEventListener('cut', onCopyBubble, false);
   w.addEventListener('paste', onPaste, true);
   w.addEventListener('keydown', onKeyDown, true);
   for (const type of ['pointerdown', 'contextmenu']) w.addEventListener(type, onTrusted, true);
-  if (isTop) {
+  if (__TOP_FRAME__) {
     for (const type of ['focusin', 'beforeinput', 'drop']) w.addEventListener(type, onTrusted, true);
     w.addEventListener('hashchange', checkAuth, true);
     w.addEventListener('popstate', checkAuth, true);
   }
 }
-attach();
-
-// document.open() wipes every listener on the window, ours included. It also replaces the
-// document's children, which this observer sees, so the listeners are put back at once.
-new MutationObserver(() => {
+if (!idle) {
   attach();
-  ui.reattach();
-}).observe(doc, { childList: true });
 
-if (isTop) {
+  // document.open() wipes every listener on the window, ours included. It also replaces the
+  // document's children, which this observer sees, so the listeners are put back at once.
+  new MutationObserver(() => {
+    attach();
+    ui.reattach();
+  }).observe(doc, { childList: true });
+}
+
+if (__TOP_FRAME__) {
   checkAuth();
   const start = (): void => {
     scanForPassword();
@@ -738,6 +759,16 @@ if (isTop) {
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       if (sender.tab || sender.id !== chrome.runtime.id || typeof msg !== 'object' || msg === null) return undefined;
       const m = msg as Record<string, unknown>;
+      if (m['type'] === 'ask') {
+        // A sub-frame's warning that needs an answer (for example a secret pasted into an AI chat inside a frame).
+        const asked = parseModel(m['model']);
+        if (!asked) return undefined;
+        ui.modal(asked, (id, h) => {
+          h.close();
+          sendResponse({ id });
+        });
+        return true; // the answer comes when the person presses a button
+      }
       if (m['type'] !== 'show') return undefined;
       const model = parseModel(m['model']);
       if (!model) return undefined;

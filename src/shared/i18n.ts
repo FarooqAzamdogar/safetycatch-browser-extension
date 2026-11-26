@@ -29,7 +29,7 @@ export const LOCALE_FOLDERS: Readonly<Record<UiLocale, readonly string[]>> = {
 
 export type Catalog = Readonly<Record<string, string>>;
 
-export function isUiLocale(value: unknown): value is UiLocale {
+function isUiLocale(value: unknown): value is UiLocale {
   return typeof value === 'string' && (UI_LOCALES as readonly string[]).includes(value);
 }
 

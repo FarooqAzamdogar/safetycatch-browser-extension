@@ -17,6 +17,7 @@ pnpm run build       # dist/chrome, dist/firefox, zip files
 pnpm run check       # all three; must pass before you open a pull request
 pnpm run smoke       # optional: real-browser test in headless Chrome or Edge
 pnpm run serve       # harmless test pages on http://localhost:8377/
+pnpm run knip        # unused files, exports and dependencies (Knip via pnpm dlx; CI runs it on Linux)
 ```
 
 TypeScript is run directly by Node (type stripping), so only erasable syntax is allowed: no `enum`, no `namespace`, no constructor parameter properties.

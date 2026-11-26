@@ -22,8 +22,8 @@ import type { WarningModel } from '../shared/model.ts';
 import type { ModuleId } from '../shared/modules.ts';
 import * as nav from '../shared/navchain.ts';
 import { isPlatformHint } from '../shared/platform-hints.ts';
-import { hasDownloadStep, looksRunnable } from '../shared/prefilter.ts';
-import type { AuthReply, ClipboardReply, ContentRequest, LoginReply, PageReply, PageRequest, SecretsReply, ShowPush } from '../shared/protocol.ts';
+import { looksRunnable } from '../shared/prefilter.ts';
+import type { AskPush, AuthReply, ClipboardReply, ContentRequest, LoginReply, PageReply, PageRequest, SecretsReply, ShowPush } from '../shared/protocol.ts';
 import { importSettings, sanitizeSettings, SETTINGS_KEY, type Settings } from '../shared/settings.ts';
 import { hostOf, isHttpUrl, originPath } from '../shared/sites.ts';
 import * as models from './models.ts';
@@ -34,7 +34,7 @@ export interface Engine {
   analyzePageText(text: string, ctx?: { url?: string | undefined }): Verdict;
   analyzeUrl(url: string, ctx?: { pageTitle?: string | undefined; pageText?: string | undefined; hasPasswordField?: boolean | undefined; referrer?: string | undefined }): Verdict;
   analyzeAuthFlow(url: string, ctx?: { referrer?: string | undefined }): Verdict;
-  scanSecrets(text: string): SecretsVerdict;
+  scanSecrets(text: string, options?: { redactMinSeverity?: RiskLevel | undefined }): SecretsVerdict;
   analyzeDownload(fileName: string, ctx: { url: string; referrer?: string | undefined; pageUrl?: string | undefined }): Verdict;
   localize(verdict: Verdict, locale: string): Verdict;
   levelLabel(level: RiskLevel, locale: string): string;
@@ -60,6 +60,8 @@ export interface CoreDeps {
   loadMessages(folder: string): Promise<unknown>;
   /** Hand a warning to the top frame of a tab. Resolves to true when it was shown. */
   showInTop(tabId: number, push: ShowPush): Promise<boolean>;
+  /** Show a warning in the top frame of a tab for a sub-frame; resolves to the button pressed, or null. */
+  askInTop(tabId: number, push: AskPush): Promise<string | null>;
   /** Navigate a tab away from the current page. */
   leaveTab(tabId: number): Promise<boolean>;
   /** Wait a little (used only while a navigation event may still be on its way). */
@@ -316,7 +318,7 @@ export function createCore(deps: CoreDeps) {
     return { action, model, note, shownInTop };
   }
 
-  /** Find the brand a page imitates and that brand's real address (using only the engine's public results). */
+  /** Find the brand a page imitates and that brand's real address (the engine's `params.official`, else `meta.brand`). */
   function impersonated(v: Verdict): { brand: string | undefined; official: string | undefined } {
     let brand: string | undefined;
     let official: string | undefined;
@@ -324,20 +326,15 @@ export function createCore(deps: CoreDeps) {
       const p = f.params;
       if (!p) continue;
       if (!brand && p['brand']) brand = p['brand'];
-      if (!official && p['official'] && /^[a-z0-9.-]{3,253}$/.test(p['official'])) official = p['official'];
+      if (!official && p['official']) official = p['official'];
     }
-    if (brand && !official) {
-      const words = brand.toLowerCase().split(/[^a-z0-9]+/).filter((x) => x.length >= 3);
-      for (const candidate of [words.join(''), ...words]) {
-        const host = `${candidate}.com`;
-        const meta = safe(() => engine.analyzeUrl(`https://${host}/`))?.meta;
-        if (meta && meta['officialBrand'] === brand) {
-          official = host;
-          break;
-        }
-      }
+    const meta = v.meta?.['brand'];
+    if (typeof meta === 'object' && meta !== null) {
+      const m = meta as { name?: unknown; officialDomains?: unknown };
+      if (!brand && typeof m.name === 'string') brand = m.name;
+      if (!official && Array.isArray(m.officialDomains) && typeof m.officialDomains[0] === 'string') official = m.officialDomains[0];
     }
-    return { brand, official };
+    return { brand, official: official && /^[a-z0-9.-]{3,253}$/.test(official) ? official : undefined };
   }
 
   async function checkLogin(req: Extract<ContentRequest, { type: 'check-login' }>, sender: Sender): Promise<LoginReply> {
@@ -397,7 +394,8 @@ export function createCore(deps: CoreDeps) {
     if (!platform) return { ui: 'none' };
     const page = safe(() => engine.analyzePageText(req.pageText, { url }));
     const hasInstructions = (page?.findings ?? []).some((f) => f.ruleId !== 'page.ugc-host' && f.ruleId !== 'page.educational');
-    const ui = decideLure(true, levelOf(page), hasInstructions, hasDownloadStep(req.pageText));
+    // Download-and-run steps are found by the engine itself (page.download-run, since engine 0.1.1).
+    const ui = decideLure(true, levelOf(page), hasInstructions);
     if (ui === 'none') return { ui };
     const c = await context();
     const model = models.lureModel(c, platform, page ? localized(page, c.locale) : null, ui === 'warn');
@@ -408,7 +406,9 @@ export function createCore(deps: CoreDeps) {
   async function checkSecrets(req: Extract<ContentRequest, { type: 'check-secrets' }>, sender: Sender): Promise<SecretsReply> {
     const settings = await getSettings();
     if (!settings.modules.aiPaste || isTrusted(settings, sender.tabUrl)) return { action: 'allow' };
-    const verdict = safe(() => engine.scanSecrets(req.text));
+    // Hide keys, passwords, card and ID numbers in the redacted copy, but leave low findings such as
+    // e-mail addresses readable: the person is pasting into a chat and usually means to share those.
+    const verdict = safe(() => engine.scanSecrets(req.text, { redactMinSeverity: 'medium' }));
     const action = decideAiPaste(levelOf(verdict));
     if (action === 'allow') return { action };
     const c = await context();
@@ -438,6 +438,12 @@ export function createCore(deps: CoreDeps) {
         return { ok: true };
       case 'leave':
         return { ok: await deps.leaveTab(sender.tabId).catch(() => false) };
+      case 'ask-top':
+        if (sender.frameId === 0) return { id: null };
+        return { id: await deps.askInTop(sender.tabId, { type: 'ask', model: req.model }).catch(() => null) };
+      case 'show-top':
+        if (sender.frameId === 0) return { ok: false };
+        return { ok: await deps.showInTop(sender.tabId, { type: 'show', model: req.model, text: '', note: '' }).catch(() => false) };
     }
   }
 

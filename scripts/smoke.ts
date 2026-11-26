@@ -22,6 +22,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import type { Readable, Writable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
+import { type BrowserRun, newBrowserRun, removeLeftovers } from './browser.ts';
 import { startPages } from './serve-pages.ts';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -290,10 +291,14 @@ class Tab {
   }
 }
 
+/** Temporary folders of this test start with this; leftovers of a killed run are removed at the next start. */
+const PREFIX = 'safetycatch-browser-smoke-';
+
 interface Launched {
   proc: ChildProcess;
   cdp: Cdp;
-  profile: string;
+  /** The browser's temporary folder: closing the browser tree and deleting it also happens on Ctrl+C or a crash. */
+  run: BrowserRun;
   extensionId: string;
   how: string;
 }
@@ -324,7 +329,7 @@ async function waitForExtension(cdp: Cdp): Promise<string> {
   return '';
 }
 
-async function launch(browser: string, port: number, withExtension: boolean): Promise<Launched> {
+async function launch(browser: string, withExtension: boolean): Promise<Launched> {
   const maps = [...DEVICE_HOSTS, ...PLATFORM_HOSTS].map((h) => `MAP ${h} 127.0.0.1`);
   const base = [
     '--headless=new',
@@ -348,8 +353,10 @@ async function launch(browser: string, port: number, withExtension: boolean): Pr
     : [{ how: 'no extension', pipe: true, args: [...base, '--remote-debugging-pipe'] }];
   let lastError = '';
   for (const attempt of attempts) {
-    const profile = mkdtempSync(join(tmpdir(), 'ag-browser-smoke-'));
+    const run = newBrowserRun(PREFIX, browser);
+    const profile = join(run.work, 'profile');
     const proc = spawn(browser, [...attempt.args, `--user-data-dir=${profile}`, 'about:blank'], { stdio: attempt.pipe ? ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'] : 'ignore' });
+    run.started(proc);
     try {
       const cdp = attempt.pipe ? Cdp.overPipe(proc.stdio[3] as Writable, proc.stdio[4] as Readable) : await Cdp.overSocket(await debuggingAddress(profile));
       await Promise.race([cdp.send('Browser.getVersion'), sleep(20_000).then(() => Promise.reject(new Error('browser did not answer')))]);
@@ -360,16 +367,12 @@ async function launch(browser: string, port: number, withExtension: boolean): Pr
         if (!seen) throw new Error('the extension service worker did not start');
         extensionId = extensionId || seen;
       }
-      return { proc, cdp, profile, extensionId, how: attempt.how };
+      return { proc, cdp, run, extensionId, how: attempt.how };
     } catch (e) {
       lastError += `${lastError ? '; ' : ''}${attempt.how}: ${(e as Error).message}`;
       proc.kill();
       await endProcess(proc);
-      try {
-        rmSync(profile, { recursive: true, force: true, maxRetries: 3 });
-      } catch {
-        // left in the temp directory
-      }
+      run.cleanUp();
     }
   }
   throw new Error(lastError);
@@ -403,12 +406,9 @@ async function endProcess(proc: ChildProcess): Promise<void> {
 async function stop(l: Launched): Promise<void> {
   await Promise.race([l.cdp.send('Browser.close').catch(() => undefined), sleep(3000)]);
   await endProcess(l.proc);
-  await sleep(300);
-  try {
-    rmSync(l.profile, { recursive: true, force: true, maxRetries: 12, retryDelay: 300 });
-  } catch {
-    // the browser may still hold files on Windows; the folder is in the temp directory
-  }
+  // Ends any browser process still using the folder (the whole tree), then deletes the folder.
+  const left = l.run.cleanUp();
+  if (left.length > 0) console.error(`Cleanup problem: ${left.join('; ')}`);
 }
 
 const median = (list: number[]): number => {
@@ -437,6 +437,8 @@ async function main(): Promise<void> {
   if (!existsSync(join(extensionDir, 'manifest.json'))) throw new Error('Run `npm run build` first');
   const found = browsers();
   if (found.length === 0) throw new Error('No Chrome or Edge found. Set BROWSER=/path/to/browser');
+  const removed = removeLeftovers(PREFIX, found[0] as string);
+  if (removed > 0) console.log(`Removed ${removed} leftover smoke-test folder(s) from an earlier run.`);
   const pages = await startPages(0);
   const port = pages.port;
   const site = `http://localhost:${port}`;
@@ -465,7 +467,7 @@ async function main(): Promise<void> {
   let launchError = '';
   for (const browser of found) {
     try {
-      launched = await launch(browser, port, true);
+      launched = await launch(browser, true);
       results.push(`INFO  browser: ${browser}`);
       break;
     } catch (e) {
@@ -674,7 +676,7 @@ async function main(): Promise<void> {
     });
 
     await group('risky download', async () => {
-      const downloads = mkdtempSync(join(tmpdir(), 'ag-browser-dl-'));
+      const downloads = mkdtempSync(join(tmpdir(), 'safetycatch-browser-dl-'));
       await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: downloads, eventsEnabled: true });
       await tab.goto(`${site}/download.html`);
       await tab.click('#plain');
@@ -786,10 +788,10 @@ async function main(): Promise<void> {
   if (PERF) {
     const browser = found[0] as string;
     const runs = 15;
-    const without = await launch(browser, port, false);
+    const without = await launch(browser, false);
     const a = await measure(without, port, runs);
     await stop(without);
-    const withExt = await launch(browser, port, true);
+    const withExt = await launch(browser, true);
     const b = await measure(withExt, port, runs);
     await stop(withExt);
     results.push(

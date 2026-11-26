@@ -5,8 +5,9 @@
 | File in the build | Runs in | Size (minified) | Job |
 |---|---|---|---|
 | `content-main.js` | every frame, the page's own JavaScript world, `document_start` | 5 KB | Hooks the ways a page can write to the clipboard and forwards the text. No analysis, no UI |
-| `content.js` | every frame, isolated world, `document_start` | 37 KB | Pre-filters, copy / paste / password-box watchers, the warning UI |
-| `background.js` | service worker (Chrome, Edge) or event page (Firefox) | 475 KB | The detection engine, decisions, warning wording, settings, navigation chain, downloads |
+| `content.js` | top frame only, isolated world, `document_start` | 40 KB | Pre-filters, copy / paste / password-box watchers, sign-in, device-code and platform checks, the warning UI |
+| `content-frame.js` | every frame, isolated world, `document_start` | 21 KB | The same copy, paste and AI-paste guards for sub-frames, without the warning UI: a sub-frame's warning is shown by the top frame (through the service worker), which also returns the button pressed. Stays idle in the top frame. Same source as `content.js` (`src/content/isolated.ts`), built with `__TOP_FRAME__` false |
+| `background.js` | service worker (Chrome, Edge) or event page (Firefox) | 529 KB | The detection engine, decisions, warning wording, settings, navigation chain, downloads |
 | `popup.js`, `options.js`, `download.js` | extension pages | 4 to 15 KB | Popup, options, download prompt |
 
 Source layout:
@@ -48,9 +49,9 @@ Consequences of the choice:
 | `isAuthUrlCandidate` | addresses not on a known identity-provider host and path | every device-code and consent endpoint in the engine's tables |
 | `isPlatformHint` | hosts not on the list of publish-anything platforms | every platform host and path in the engine's tables |
 
-The last two tests read the engine's rule tables directly (tests only) so the lists cannot silently drift apart.
+The host and path lists of the last two are generated from the engine's exported tables (`PLATFORMS`, `DEVICE_CODE_ENDPOINTS`, `OAUTH_ENDPOINTS`) into `src/shared/engine-tables.ts` by `scripts/engine-tables.ts`; the build regenerates the file and a test fails when it is out of date. (Importing the engine into a content script would add about 270 KB to every page.)
 
-On an ordinary page the content script: creates the channel (two events), registers about fifteen listeners, starts one observer on the document node and, in the top frame, one debounced observer that looks for a password box. No storage read happens until the first key press or click; no message is sent unless a pre-filter fires.
+On an ordinary page the content script: creates the channel (two events), registers about fifteen listeners, starts one observer on the document node and, in the top frame, one debounced observer that looks for a password box. In a sub-frame the smaller `content-frame.js` does the same without the UI and the top-frame checks; in the top frame that script only checks that it is in the top frame and stops. No storage read happens until the first key press or click; no message is sent unless a pre-filter fires.
 
 ## The private channel between the two page scripts
 

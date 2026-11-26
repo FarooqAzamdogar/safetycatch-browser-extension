@@ -25,7 +25,7 @@ export const TOKEN_CHARS = 32;
  * `w` writeText, `W` write (both wait for an answer), `s` setData,
  * `x` execCommand copy/cut starting, `X` finished, `t` a hook was replaced.
  */
-export const UP_KINDS = ['w', 'W', 's', 'x', 'X', 't'] as const;
+const UP_KINDS = ['w', 'W', 's', 'x', 'X', 't'] as const;
 export type UpKind = (typeof UP_KINDS)[number];
 
 export interface UpMessage {

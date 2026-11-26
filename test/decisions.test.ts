@@ -148,15 +148,14 @@ test('auth: flow names from the engine are validated', () => {
 });
 
 test('lure: a notice only on platforms, and only when instructions are present', () => {
-  assert.equal(decideLure(false, 'critical', true, true), 'none');
-  assert.equal(decideLure(true, 'safe', false, false), 'none');
-  assert.equal(decideLure(true, 'low', true, false), 'notice');
-  assert.equal(decideLure(true, 'safe', false, true), 'notice');
-  assert.equal(decideLure(true, 'medium', true, false), 'notice');
-  assert.equal(decideLure(true, 'high', true, false), 'warn');
-  assert.equal(decideLure(true, 'critical', false, false), 'warn');
-  assert.equal(decideLure(true, 'unknown', false, true), 'notice');
-  assert.equal(decideLure(true, 'unknown', false, false), 'none');
+  assert.equal(decideLure(false, 'critical', true), 'none');
+  assert.equal(decideLure(true, 'safe', false), 'none');
+  assert.equal(decideLure(true, 'low', true), 'notice');
+  assert.equal(decideLure(true, 'medium', true), 'notice');
+  assert.equal(decideLure(true, 'high', true), 'warn');
+  assert.equal(decideLure(true, 'critical', false), 'warn');
+  assert.equal(decideLure(true, 'unknown', true), 'notice');
+  assert.equal(decideLure(true, 'unknown', false), 'none');
 });
 
 test('AI paste: medium and worse stop the paste; low passes; a failed check is "unchecked"', () => {

@@ -50,3 +50,35 @@ jobs:
       - name: Audit runtime dependencies
         working-directory: safetycatch-browser-extension
         run: pnpm audit --prod
+
+  knip:
+    name: knip (unused files, exports, dependencies)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: safetycatch-browser-extension
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.repository_owner }}/safetycatch-engine
+          path: safetycatch-engine
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          package_json_file: safetycatch-browser-extension/package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Install the engine
+        working-directory: safetycatch-engine
+        run: pnpm install --frozen-lockfile
+      - name: Build the engine
+        working-directory: safetycatch-engine
+        run: pnpm run build
+      - name: Install
+        working-directory: safetycatch-browser-extension
+        run: pnpm install --frozen-lockfile
+      - name: Knip
+        working-directory: safetycatch-browser-extension
+        run: pnpm run knip

@@ -107,10 +107,10 @@ export function decideAuth(level: CheckedLevel, flow: AuthFlow, arrival: Arrival
 export type LureUi = 'none' | 'notice' | 'warn';
 
 /** Notice on publish-anything platforms: calm when instructions are present, stronger when they are a known lure. */
-export function decideLure(isPlatform: boolean, page: CheckedLevel, hasInstructions: boolean, hasDownloadStep: boolean): LureUi {
+export function decideLure(isPlatform: boolean, page: CheckedLevel, hasInstructions: boolean): LureUi {
   if (!isPlatform) return 'none';
   if (atLeast(page, 'high')) return 'warn';
-  return hasInstructions || hasDownloadStep ? 'notice' : 'none';
+  return hasInstructions ? 'notice' : 'none';
 }
 
 export type AiPasteAction = 'allow' | 'prompt' | 'unchecked';

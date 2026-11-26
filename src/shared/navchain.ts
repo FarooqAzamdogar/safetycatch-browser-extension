@@ -11,13 +11,13 @@
 
 export type NavHow = 'typed' | 'link' | 'redirect' | 'form' | 'reload' | 'other';
 
-export interface NavEntry {
+interface NavEntry {
   url: string;
   t: number;
   how: NavHow;
 }
 
-export interface TabNav {
+interface TabNav {
   entries: NavEntry[];
   /** Address of the page that opened this tab (link in a new tab, window.open). */
   opener?: string;
@@ -32,7 +32,7 @@ export type NavState = Record<string, TabNav>;
 export const MAX_ENTRIES = 6;
 export const MAX_TABS = 200;
 export const MAX_URL_CHARS = 600;
-export const MAX_AGE_MS = 30 * 60 * 1000;
+const MAX_AGE_MS = 30 * 60 * 1000;
 
 export type Arrival = 'typed' | 'link' | 'external' | 'unknown';
 

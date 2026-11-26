@@ -175,3 +175,9 @@ test('downloads: the pending table read from storage is validated, aged out and 
   assert.ok('0' in kept);
   assert.deepEqual(sanitizePending(null, now), {});
 });
+
+test('sub-frame relay requests carry a model object and nothing else', () => {
+  assert.deepEqual(parseContentRequest({ type: 'ask-top', model: { kind: 'ai-paste' }, extra: 1 }), { type: 'ask-top', model: { kind: 'ai-paste' } });
+  assert.deepEqual(parseContentRequest({ type: 'show-top', model: { kind: 'paste-notice' } }), { type: 'show-top', model: { kind: 'paste-notice' } });
+  for (const model of [undefined, null, 'text', 3]) assert.equal(parseContentRequest({ type: 'ask-top', model }), null);
+});

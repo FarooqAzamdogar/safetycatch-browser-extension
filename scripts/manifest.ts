@@ -21,8 +21,8 @@ export const EXTENSION_CSP = "default-src 'none'; script-src 'self'; style-src '
 /** Placeholder add-on id for Firefox; the owner replaces it before a store submission. */
 export const FIREFOX_ID = 'safetycatch-browser-extension@safetycatch.example';
 
-export const MIN_CHROME = '120';
-export const MIN_FIREFOX = '128.0';
+const MIN_CHROME = '120';
+const MIN_FIREFOX = '128.0';
 
 export function buildManifest(target: Target, version: string): Record<string, unknown> {
   const icons = Object.fromEntries(ICON_SIZES.map((s) => [String(s), `icons/icon-${s}.png`]));
@@ -46,9 +46,12 @@ export function buildManifest(target: Target, version: string): Record<string, u
     permissions: [...PERMISSIONS],
     host_permissions: [...HOST_PERMISSIONS],
     content_scripts: [
-      // Page-world clipboard hooks first, then the content script that owns the logic and the UI.
+      // Page-world clipboard hooks first, then the content scripts that own the logic: the full one
+      // (with the warning UI) in the top frame only, and a smaller one in every frame that works in
+      // sub-frames and has its warnings shown by the top frame. No extra permission is involved.
       { ...everyFrame, js: ['content-main.js'], world: 'MAIN' },
-      { ...everyFrame, js: ['content.js'] },
+      { ...everyFrame, all_frames: false, js: ['content.js'] },
+      { ...everyFrame, js: ['content-frame.js'] },
     ],
     content_security_policy: { extension_pages: EXTENSION_CSP },
   };

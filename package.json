@@ -15,7 +15,8 @@
     "build": "node scripts/build.ts",
     "check": "node --run typecheck && node --run test && node --run build",
     "smoke": "node scripts/smoke.ts",
-    "serve": "node scripts/serve-pages.ts"
+    "serve": "node scripts/serve-pages.ts",
+    "knip": "node scripts/knip.ts"
   },
   "keywords": [
     "security",

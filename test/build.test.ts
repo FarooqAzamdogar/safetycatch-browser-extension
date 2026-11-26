@@ -82,16 +82,18 @@ for (const target of TARGETS) {
     for (const banned of ['unsafe-inline', 'unsafe-eval', 'wasm-unsafe-eval', 'http:', 'https:', '*', 'blob:', 'data:']) assert.equal(csp.includes(banned), false, banned);
   });
 
-  test(`manifest (${target}): hooks run first, in every frame, before page scripts`, () => {
+  test(`manifest (${target}): hooks run first, in every frame, before page scripts; the full content script only in the top frame`, () => {
     const scripts = buildManifest(target, '0.1.0')['content_scripts'] as Array<Record<string, unknown>>;
-    assert.equal(scripts.length, 2);
+    assert.equal(scripts.length, 3);
     assert.deepEqual(scripts[0]?.['js'], ['content-main.js']);
     assert.equal(scripts[0]?.['world'], 'MAIN');
     assert.deepEqual(scripts[1]?.['js'], ['content.js']);
+    assert.deepEqual(scripts[2]?.['js'], ['content-frame.js']);
     assert.equal('world' in (scripts[1] ?? {}), false);
+    assert.equal('world' in (scripts[2] ?? {}), false);
     for (const s of scripts) {
       assert.equal(s['run_at'], 'document_start');
-      assert.equal(s['all_frames'], true);
+      assert.equal(s['all_frames'], s['js'] !== undefined && (s['js'] as string[])[0] !== 'content.js');
       assert.equal(s['match_about_blank'], true);
       assert.equal(s['match_origin_as_fallback'], true);
       assert.deepEqual(s['matches'], [...HOST_PERMISSIONS]);

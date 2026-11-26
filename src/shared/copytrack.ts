@@ -30,7 +30,7 @@ export interface Candidate {
 }
 
 export const MAX_CANDIDATES = 3;
-export const MAX_CANDIDATE_CHARS = 100_000;
+const MAX_CANDIDATE_CHARS = 100_000;
 
 export function newCopyContext(programmatic: boolean): CopyContext {
   return { programmatic, setData: [], selections: [], finalData: null, defaultPrevented: null };
