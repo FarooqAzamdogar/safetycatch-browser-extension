@@ -1,0 +1,5 @@
+# pnpm settings for this repository.
+# esbuild works without its optional install script (it uses the @esbuild/<platform> package
+# directly), so the script is not allowed to run.
+allowBuilds:
+  esbuild: false

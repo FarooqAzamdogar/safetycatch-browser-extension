@@ -46,7 +46,7 @@ Where actionguard-browser goes after 0.1.0. Order within a section is the intend
 
 - Reproducible-build check in CI (build twice, compare zip hashes) and signed release artefacts.
 - Property-based tests for `decidePaste`, the channel codec and the navigation chain.
-- Size and performance budgets in CI from `npm run smoke -- --perf`.
+- Size and performance budgets in CI from `pnpm run smoke -- --perf`.
 - A leaner script for sub-frames (clipboard watcher only) with the warning UI and the top-frame checks loaded only where they are needed, to cut the per-frame start-up cost.
 - Work with the engine on its cold start: the page-text analyzer takes a second or more on first use after the worker wakes.
 - Safari (WebExtensions on macOS and iOS) feasibility study; mobile Firefox for Android.

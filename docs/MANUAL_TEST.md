@@ -1,15 +1,15 @@
 # Manual test guide
 
-Use this to check a build by hand, in each target browser, before a release. The automated real-browser test (`npm run smoke`) covers the same ground in headless Chrome or Edge; this guide is for a visible browser, for Firefox, and for the things automation cannot judge (wording, layout, right-to-left text, screen readers).
+Use this to check a build by hand, in each target browser, before a release. The automated real-browser test (`pnpm run smoke`) covers the same ground in headless Chrome or Edge; this guide is for a visible browser, for Firefox, and for the things automation cannot judge (wording, layout, right-to-left text, screen readers).
 
 Everything here is harmless. The test pages are local files served from your own computer; the "command" they copy only prints a line of text; the "secret" is a made-up token; the downloads are one line of plain text.
 
 ## Set up
 
 ```bash
-cd actionguard-engine && npm ci && npm run build
-cd ../actionguard-browser && npm ci && npm run build
-npm run serve          # leave this running; serves http://localhost:8377/
+cd actionguard-engine && pnpm install --frozen-lockfile && pnpm run build
+cd ../actionguard-browser && pnpm install --frozen-lockfile && pnpm run build
+pnpm run serve          # leave this running; serves http://localhost:8377/
 ```
 
 Load the extension as described in the README ("Install"): `dist/chrome` for Chrome and Edge, `dist/firefox/manifest.json` for Firefox (then grant site access in about:addons). Use a spare browser profile if you can.
@@ -80,7 +80,7 @@ These need the real sign-in addresses, which a local page cannot imitate. Visiti
 
 The notice appears only on platform host names (shared AI chats, site builders, and so on), so it cannot be shown on `localhost`. Two ways to see it:
 
-- Automated: `npm run smoke` maps a stand-in platform host name to the local server and checks the notice.
+- Automated: `pnpm run smoke` maps a stand-in platform host name to the local server and checks the notice.
 - By hand: start the browser with a host mapping, for example
   `chrome --user-data-dir=/tmp/ag-test --host-resolver-rules="MAP actionguard-test.weebly.com 127.0.0.1"`, load the extension, and open `http://actionguard-test.weebly.com:8377/help/fix-update`.
   - Expected: a blue banner "This page was written by an unknown person".

@@ -8,15 +8,15 @@ Requirements: Node.js 22.18 or newer. No native tools are needed.
 
 ```bash
 # the engine sits next to this folder
-cd actionguard-engine && npm ci && npm run build
-cd ../actionguard-browser && npm ci
+cd actionguard-engine && pnpm install --frozen-lockfile && pnpm run build
+cd ../actionguard-browser && pnpm install --frozen-lockfile
 
-npm run typecheck   # tsc --noEmit (strict)
-npm test            # node --test on the TypeScript sources
-npm run build       # dist/chrome, dist/firefox, zip files
-npm run check       # all three; must pass before you open a pull request
-npm run smoke       # optional: real-browser test in headless Chrome or Edge
-npm run serve       # harmless test pages on http://localhost:8377/
+pnpm run typecheck   # tsc --noEmit (strict)
+pnpm test            # node --test on the TypeScript sources
+pnpm run build       # dist/chrome, dist/firefox, zip files
+pnpm run check       # all three; must pass before you open a pull request
+pnpm run smoke       # optional: real-browser test in headless Chrome or Edge
+pnpm run serve       # harmless test pages on http://localhost:8377/
 ```
 
 TypeScript is run directly by Node (type stripping), so only erasable syntax is allowed: no `enum`, no `namespace`, no constructor parameter properties.
@@ -38,12 +38,12 @@ TypeScript is run directly by Node (type stripping), so only erasable syntax is 
 - Every decision branch needs a test. Every bug fix needs a test that fails without the fix.
 - **Attack-like test data must be safe to store.** Microsoft Defender and other antivirus tools quarantine files that contain realistic attack strings, and refuse to start a process with one on its command line. Write such samples with the `¦` marker inside sensitive words and pass them through `arm()` from `test/helpers.ts`; build invisible characters with `String.fromCodePoint`; never type a `\u` escape for a control character; never put a sample on a command line. Use only defanged domains (`example.com`, `*.example`, `*.test`).
 - Fake secrets must be assembled at run time too (see `fakeToken()`), so secret scanners do not flag the repository.
-- The fake window in `test/fake-window.ts` exists only to test the hooks and their channel. Do not grow it into a DOM library; UI behaviour belongs in `npm run smoke` and `docs/MANUAL_TEST.md`.
-- If you change anything in `src/content/`, run `npm run smoke` and say so in the pull request.
+- The fake window in `test/fake-window.ts` exists only to test the hooks and their channel. Do not grow it into a DOM library; UI behaviour belongs in `pnpm run smoke` and `docs/MANUAL_TEST.md`.
+- If you change anything in `src/content/`, run `pnpm run smoke` and say so in the pull request.
 
 ## Adding or changing things
 
-**A language.** Add `src/locales/<code>.json` with every key of `en.json` and the same `{placeholders}`, start it with `"_note": "machine translation, needs native review"` unless a native speaker wrote or reviewed it, set `ui_lang` and `ui_dir`, and add the code to `UI_LOCALES` and `LOCALE_FOLDERS` in `src/shared/i18n.ts` (and `RTL_LOCALES` if it is written right to left). The engine must support the language as well. `npm test` checks keys, placeholders, the store length limits and that no message contains markup.
+**A language.** Add `src/locales/<code>.json` with every key of `en.json` and the same `{placeholders}`, start it with `"_note": "machine translation, needs native review"` unless a native speaker wrote or reviewed it, set `ui_lang` and `ui_dir`, and add the code to `UI_LOCALES` and `LOCALE_FOLDERS` in `src/shared/i18n.ts` (and `RTL_LOCALES` if it is written right to left). The engine must support the language as well. `pnpm test` checks keys, placeholders, the store length limits and that no message contains markup.
 
 **A reviewed translation.** Remove the `_note` line from that file in the same pull request that carries the native speaker's review, and say who reviewed it.
 
@@ -58,7 +58,7 @@ TypeScript is run directly by Node (type stripping), so only erasable syntax is 
 ## Pull requests
 
 - Keep them small and focused. Describe what the person using the browser will notice.
-- `npm run check` must pass. CI runs it on Linux and Windows with Node 22 and 24.
+- `pnpm run check` must pass. CI runs it on Linux and Windows with Node 22 and 24.
 - Dependencies: none are added without discussion. Runtime dependencies must be pure JavaScript, permissively licensed, maintained, pinned to an exact version and justified in the README.
 - By contributing you agree that your work is licensed under Apache-2.0.
 - Be kind. See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).

@@ -29,8 +29,8 @@ Every warning has a safe default, and every "go ahead anyway" needs deliberate f
 You need [Node.js](https://nodejs.org/) 22.18 or newer to build. The engine sits next to this folder.
 
 ```bash
-cd actionguard-engine && npm ci && npm run build
-cd ../actionguard-browser && npm ci && npm run build
+cd actionguard-engine && pnpm install --frozen-lockfile && pnpm run build
+cd ../actionguard-browser && pnpm install --frozen-lockfile && pnpm run build
 ```
 
 This creates `dist/chrome/`, `dist/firefox/` and two zip files.
@@ -54,7 +54,7 @@ This creates `dist/chrome/`, `dist/firefox/` and two zip files.
 2. Click **Load Temporary Add-on...** and choose `actionguard-browser/dist/firefox/manifest.json`.
 3. Open `about:addons`, select ActionGuard, open the **Permissions** tab and allow "Access your data for all websites". Firefox treats site access as optional; without it the extension can do nothing.
 
-To try it safely, run `npm run serve` and open <http://localhost:8377/>. These are harmless local pages that imitate each attack; [docs/MANUAL_TEST.md](docs/MANUAL_TEST.md) walks through them.
+To try it safely, run `pnpm run serve` and open <http://localhost:8377/>. These are harmless local pages that imitate each attack; [docs/MANUAL_TEST.md](docs/MANUAL_TEST.md) walks through them.
 
 ## Using it
 
@@ -106,7 +106,7 @@ Not requested: `tabs`, `scripting`, `notifications`, `clipboardRead`, `history`,
 ```
 
 - **The engine runs in the service worker, not in pages.** Pages get two small scripts. They watch for the few risky actions and run cheap local pre-filters; only a hit is sent to the service worker. On an ordinary page no message is sent at all. Inside the worker the slowest engine step (reading a page's instructions, which costs a second or more the first time after the worker wakes) is skipped whenever it could not change the outcome.
-- **Measured cost.** On a local page with 1,500 paragraphs and 3 iframes (four frames in all), headless Chrome 157, median of 15 loads with and without the extension. Three runs on a busy 16 GB laptop gave **+7, +15 and +18 ms at `DOMContentLoaded`** (for example 26.1 ms without and 32.8 ms with) and **-3, +17 and +47 ms at `load`**. That is the two scripts starting in four frames, a few milliseconds per frame; the spread shows how much the figures move with other load on the machine. A cold service worker answered its first request in about 0.8 s. Reproduce with `npm run smoke -- --perf`.
+- **Measured cost.** On a local page with 1,500 paragraphs and 3 iframes (four frames in all), headless Chrome 157, median of 15 loads with and without the extension. Three runs on a busy 16 GB laptop gave **+7, +15 and +18 ms at `DOMContentLoaded`** (for example 26.1 ms without and 32.8 ms with) and **-3, +17 and +47 ms at `load`**. That is the two scripts starting in four frames, a few milliseconds per frame; the spread shows how much the figures move with other load on the machine. A cold service worker answered its first request in about 0.8 s. Reproduce with `pnpm run smoke -- --perf`.
 - **Fail safe.** If the service worker is asleep it is woken by the message. If it cannot answer in time (still starting, crashed, extension being updated, machine out of memory), the content script shows a neutral "could not check" state, never "safe"; a copied text that looks like a download-and-run command is still neutralised using a small local check. (This path was seen working in the real-browser test when the test machine ran out of memory: the copy was cleared and the warning read "Not checked".)
 - **Hostile pages.** Hooks are installed before any page script and use only private references taken at start-up; warnings live in a closed shadow root; synthetic clicks are ignored; the clipboard is neutralised before the warning is drawn, so a page that manages to hide the warning gains nothing. See [THREAT_MODEL.md](THREAT_MODEL.md).
 
@@ -115,14 +115,14 @@ More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 ## Development
 
 ```bash
-npm run check      # typecheck + 232 unit tests + build of both browser targets
-npm run smoke      # real-browser test: loads dist/chrome into headless Chrome or Edge
-npm run serve      # serves the harmless test pages on http://localhost:8377/
+pnpm run check      # typecheck + 232 unit tests + build of both browser targets
+pnpm run smoke      # real-browser test: loads dist/chrome into headless Chrome or Edge
+pnpm run serve      # serves the harmless test pages on http://localhost:8377/
 ```
 
-- `npm run check` must pass before any change is merged.
+- `pnpm run check` must pass before any change is merged.
 - Unit tests run on TypeScript directly with Node's test runner. They cover the decision logic, pre-filters, message protocol, allowlist and expiry, storage caps, navigation chain, download decisions, scope explanations, catalogs, the zip writer, the manifest, and the service-worker logic with the real engine. The page-world clipboard hooks are tested on a hundred-line fake window (`test/fake-window.ts`); no DOM library is used.
-- `npm run smoke` drives real, trusted mouse and keyboard events over the DevTools protocol and reads the warning UI through the protocol (page scripts cannot see it). It currently makes 39 checks (all passing in Chrome 157 and Edge 158 on Windows 11): paste guard through four copy techniques and on a plain-http page, benign copies, look-alike sign-in, AI-chat redaction in three kinds of editor, risky download, device-code arrival, platform notice, popup, options and stored data.
+- `pnpm run smoke` drives real, trusted mouse and keyboard events over the DevTools protocol and reads the warning UI through the protocol (page scripts cannot see it). It currently makes 39 checks (all passing in Chrome 157 and Edge 158 on Windows 11): paste guard through four copy techniques and on a plain-http page, benign copies, look-alike sign-in, AI-chat redaction in three kinds of editor, risky download, device-code arrival, platform notice, popup, options and stored data.
 
 Build output: `dist/chrome/`, `dist/firefox/`, `dist/actionguard-browser-<version>-<browser>.zip` (no source maps inside) and `dist/sourcemaps/` (readable source maps, kept out of the store packages).
 
@@ -149,7 +149,7 @@ Be clear about what this does **not** do.
 |---|---|---|---|
 | [actionguard-engine](../actionguard-engine/) | 0.1.0 (`file:../actionguard-engine`) | Apache-2.0, rules CC-BY-4.0 | All detection. Bundled into `background.js` only. Brings `tldts` 7.6.0 (MIT) with Public Suffix List data (MPL-2.0) |
 
-No other runtime dependency. Development only: `typescript` 7.0.2, `esbuild` 0.28.2, `@types/node` 24.19.4. The zip writer, icon generator, DevTools-protocol client, WebExtension type declarations and test shim are written in this repository to avoid further packages. `npm audit --omit=dev`: 0 vulnerabilities (2026-11-26).
+No other runtime dependency. Development only: `typescript` 7.0.2, `esbuild` 0.28.2, `@types/node` 24.19.4. The zip writer, icon generator, DevTools-protocol client, WebExtension type declarations and test shim are written in this repository to avoid further packages. `pnpm audit --prod`: 0 vulnerabilities (2026-11-26).
 
 ## License
 

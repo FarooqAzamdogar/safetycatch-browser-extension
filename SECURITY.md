@@ -31,4 +31,4 @@ Only the latest 0.x release receives fixes until 1.0.
 
 ## How releases are built
 
-Releases are built from this repository and the sibling `actionguard-engine` with `npm ci && npm run build`. The build is reproducible apart from the bundler version: the zip writer uses fixed timestamps and sorted entries. Store packages contain no source maps and no remote code. All GitHub Actions are pinned to full commit hashes.
+Releases are built from this repository and the sibling `actionguard-engine` with `pnpm install --frozen-lockfile && pnpm run build`. The build is reproducible apart from the bundler version: the zip writer uses fixed timestamps and sorted entries. Store packages contain no source maps and no remote code. All GitHub Actions are pinned to full commit hashes.

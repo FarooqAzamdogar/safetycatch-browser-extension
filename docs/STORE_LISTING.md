@@ -71,7 +71,7 @@ No user data is collected or transmitted. See [PRIVACY.md](PRIVACY.md) (publish 
 
 ## Assets still to produce
 
-- Screenshots, 1280 x 800: paste warning; device-code warning; look-alike sign-in warning; AI-chat secrets dialog; popup; options page. Use the pages in `test/pages/` (run `npm run serve`), which contain no real brands' designs and no personal data.
+- Screenshots, 1280 x 800: paste warning; device-code warning; look-alike sign-in warning; AI-chat secrets dialog; popup; options page. Use the pages in `test/pages/` (run `pnpm run serve`), which contain no real brands' designs and no personal data.
 - Small promotional tile 440 x 280 (Chrome), store logo 300 x 300 (Edge). The icon is drawn by `scripts/icons.ts`.
 - Support address and homepage: [SUPPORT URL], [HOMEPAGE URL].
 
@@ -79,6 +79,6 @@ No user data is collected or transmitted. See [PRIVACY.md](PRIVACY.md) (publish 
 
 1. Replace the Firefox add-on id in `scripts/manifest.ts` (`FIREFOX_ID`) with the real one.
 2. Have native speakers review the translations, or submit English only at first.
-3. Run `npm run check` and `npm run smoke`, and walk through `docs/MANUAL_TEST.md` in each target browser, including a real Firefox.
+3. Run `pnpm run check` and `pnpm run smoke`, and walk through `docs/MANUAL_TEST.md` in each target browser, including a real Firefox.
 4. Upload `dist/actionguard-browser-<version>-chrome.zip` (Chrome, Edge) and `...-firefox.zip` (AMO). AMO also asks for the source: the repository at the release tag plus the sibling `actionguard-engine` at its tag, with the build steps from the README.
 5. Brand names in listings: describe what is detected ("look-alike sign-in pages of well-known brands") rather than naming brands in the title or screenshots.
