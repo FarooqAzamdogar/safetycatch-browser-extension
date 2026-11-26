@@ -356,13 +356,16 @@ test('platform lure: paste-and-run steps on a shared AI chat get a strong warnin
   assert.ok(m.lead[1]?.includes('a shared ChatGPT conversation'));
 });
 
-test('platform lure: download-and-run steps get a calm notice; a harmless page gets nothing', async () => {
+test('platform lure: plain download-and-run steps get a calm notice; a harmless page gets nothing', async () => {
   const h = harness();
   const url = 'https://sites.google.com/view/help';
-  const r = (await h.core.handleContent({ type: 'check-page', pageText: 'To fix this problem, download the repair tool below, then open the downloaded installer and choose Run anyway.' }, from(url))) as PageReply;
+  const r = (await h.core.handleContent({ type: 'check-page', pageText: 'Download the setup file below and run the installer to get started with our app.' }, from(url))) as PageReply;
   assert.equal(r.ui, 'notice');
   assert.equal(model(r.model).level, 'low');
   assert.equal(model(r.model).title, 'This page was written by an unknown person');
+  // A fake "fix" that also tells you to bypass the security warning is a real lure: strong warning.
+  const lure = (await h.core.handleContent({ type: 'check-page', pageText: 'To fix this problem, download the repair tool below, then open the downloaded installer and choose Run anyway.' }, from(url))) as PageReply;
+  assert.equal(lure.ui, 'warn');
   assert.deepEqual(await h.core.handleContent({ type: 'check-page', pageText: 'Welcome to my recipe blog. Today we bake bread.' }, from(url)), { ui: 'none' });
   assert.deepEqual(await h.core.handleContent({ type: 'check-page', pageText: LURE_PAGE_TEXT }, from('https://ordinary-site.example/')), { ui: 'none' });
 });
