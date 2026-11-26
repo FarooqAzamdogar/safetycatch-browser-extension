@@ -1,5 +1,5 @@
-actionguard-browser
-Copyright 2026 The ActionGuard Authors
+safetycatch-browser-extension
+Copyright 2026 The SafetyCatch Authors
 
 This product is licensed under the Apache License, Version 2.0 (see LICENSE).
 The built extension (dist/, and the store zip files) bundles the components
@@ -8,12 +8,12 @@ listed below. The source tree itself contains no third-party code.
 Third-party components bundled into background.js
 --------------------------------------------------
 
-actionguard-engine 0.1.0 (sibling project of the ActionGuard suite)
-  Copyright 2026 The ActionGuard Authors
+safetycatch-engine 0.1.0 (sibling project of the SafetyCatch suite)
+  Copyright 2026 The SafetyCatch Authors
   License: Apache-2.0 (code) and CC-BY-4.0 (detection rules and data)
   https://creativecommons.org/licenses/by/4.0/
 
-tldts and tldts-core 7.6.0 (dependency of actionguard-engine)
+tldts and tldts-core 7.6.0 (dependency of safetycatch-engine)
   Copyright (c) 2017 Thomas Parisot, 2018 Remi Berson
   License: MIT - https://github.com/remusao/tldts
 

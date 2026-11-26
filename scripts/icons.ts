@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 //
 // Draws the extension icon (a shield with a tick) in code, so the repository

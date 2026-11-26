@@ -1,14 +1,14 @@
-# actionguard-browser
+# safetycatch-browser-extension
 
 A browser extension (Chrome and Edge first, Firefox build included) that guards **the risky action an attack needs you to take**: pasting a command, entering a device code, approving an app, typing a password on a look-alike page, pasting secrets into an AI chat, or opening a disguised download.
 
-Blocklists miss new scam sites because attackers change addresses every few hours. The step they need from you does not change. ActionGuard watches for that step, on your device, and explains in plain language what happened, why it is risky and what to do next.
+Blocklists miss new scam sites because attackers change addresses every few hours. The step they need from you does not change. SafetyCatch watches for that step, on your device, and explains in plain language what happened, why it is risky and what to do next.
 
 - **Who it is for:** anyone who uses a browser, including people who are not technical.
 - **Status:** 0.1.0, not yet published to any store. Tested in real Chrome 157 and Edge 158 (39 automated checks each); the Firefox build is produced and reviewed but has not yet been run in a real Firefox (see [Limitations](#limitations)).
-- Part of the ActionGuard suite; detection comes from the shared [actionguard-engine](../actionguard-engine/).
+- Part of the SafetyCatch suite; detection comes from the shared [safetycatch-engine](../safetycatch-engine/).
 
-> "ActionGuard" is a working name.
+> "SafetyCatch" is a working name.
 
 ## What it protects
 
@@ -29,8 +29,8 @@ Every warning has a safe default, and every "go ahead anyway" needs deliberate f
 You need [Node.js](https://nodejs.org/) 22.18 or newer to build. The engine sits next to this folder.
 
 ```bash
-cd actionguard-engine && pnpm install --frozen-lockfile && pnpm run build
-cd ../actionguard-browser && pnpm install --frozen-lockfile && pnpm run build
+cd safetycatch-engine && pnpm install --frozen-lockfile && pnpm run build
+cd ../safetycatch-browser-extension && pnpm install --frozen-lockfile && pnpm run build
 ```
 
 This creates `dist/chrome/`, `dist/firefox/` and two zip files.
@@ -39,20 +39,20 @@ This creates `dist/chrome/`, `dist/firefox/` and two zip files.
 
 1. Open `chrome://extensions`.
 2. Switch on **Developer mode** (top right).
-3. Click **Load unpacked** and choose the folder `actionguard-browser/dist/chrome`.
-4. Pin "ActionGuard" from the puzzle-piece menu so the shield icon is visible.
+3. Click **Load unpacked** and choose the folder `safetycatch-browser-extension/dist/chrome`.
+4. Pin "SafetyCatch" from the puzzle-piece menu so the shield icon is visible.
 
 **Edge**
 
 1. Open `edge://extensions`.
 2. Switch on **Developer mode** (left side).
-3. Click **Load unpacked** and choose `actionguard-browser/dist/chrome` (the same build).
+3. Click **Load unpacked** and choose `safetycatch-browser-extension/dist/chrome` (the same build).
 
 **Firefox** (128 or newer; temporary install, removed when Firefox closes)
 
 1. Open `about:debugging#/runtime/this-firefox`.
-2. Click **Load Temporary Add-on...** and choose `actionguard-browser/dist/firefox/manifest.json`.
-3. Open `about:addons`, select ActionGuard, open the **Permissions** tab and allow "Access your data for all websites". Firefox treats site access as optional; without it the extension can do nothing.
+2. Click **Load Temporary Add-on...** and choose `safetycatch-browser-extension/dist/firefox/manifest.json`.
+3. Open `about:addons`, select SafetyCatch, open the **Permissions** tab and allow "Access your data for all websites". Firefox treats site access as optional; without it the extension can do nothing.
 
 To try it safely, run `pnpm run serve` and open <http://localhost:8377/>. These are harmless local pages that imitate each attack; [docs/MANUAL_TEST.md](docs/MANUAL_TEST.md) walks through them.
 
@@ -96,7 +96,7 @@ Not requested: `tabs`, `scripting`, `notifications`, `clipboardRead`, `history`,
 ┌──────────────────────────────┐  messages   ┌─────────────────────────────┐
 │ content-main.js  (5 KB)      │             │ background.js (service      │
 │   page world: clipboard hooks│             │ worker, 475 KB)             │
-│        │ private channel     │   only when │   actionguard-engine        │
+│        │ private channel     │   only when │   safetycatch-engine        │
 │ content.js       (37 KB)     │──a cheap───▶│   decisions, wording,       │
 │   pre-filters, copy/paste/   │  pre-filter │   settings, navigation      │
 │   password watchers, warning │   says so   │   chain, downloads          │
@@ -124,7 +124,7 @@ pnpm run serve      # serves the harmless test pages on http://localhost:8377/
 - Unit tests run on TypeScript directly with Node's test runner. They cover the decision logic, pre-filters, message protocol, allowlist and expiry, storage caps, navigation chain, download decisions, scope explanations, catalogs, the zip writer, the manifest, and the service-worker logic with the real engine. The page-world clipboard hooks are tested on a hundred-line fake window (`test/fake-window.ts`); no DOM library is used.
 - `pnpm run smoke` drives real, trusted mouse and keyboard events over the DevTools protocol and reads the warning UI through the protocol (page scripts cannot see it). It currently makes 39 checks (all passing in Chrome 157 and Edge 158 on Windows 11): paste guard through four copy techniques and on a plain-http page, benign copies, look-alike sign-in, AI-chat redaction in three kinds of editor, risky download, device-code arrival, platform notice, popup, options and stored data.
 
-Build output: `dist/chrome/`, `dist/firefox/`, `dist/actionguard-browser-<version>-<browser>.zip` (no source maps inside) and `dist/sourcemaps/` (readable source maps, kept out of the store packages).
+Build output: `dist/chrome/`, `dist/firefox/`, `dist/safetycatch-browser-extension-<version>-<browser>.zip` (no source maps inside) and `dist/sourcemaps/` (readable source maps, kept out of the store packages).
 
 ## Limitations
 
@@ -147,12 +147,12 @@ Be clear about what this does **not** do.
 
 | Package | Version | License | Why |
 |---|---|---|---|
-| [actionguard-engine](../actionguard-engine/) | 0.1.0 (`file:../actionguard-engine`) | Apache-2.0, rules CC-BY-4.0 | All detection. Bundled into `background.js` only. Brings `tldts` 7.6.0 (MIT) with Public Suffix List data (MPL-2.0) |
+| [safetycatch-engine](../safetycatch-engine/) | 0.1.0 (`file:../safetycatch-engine`) | Apache-2.0, rules CC-BY-4.0 | All detection. Bundled into `background.js` only. Brings `tldts` 7.6.0 (MIT) with Public Suffix List data (MPL-2.0) |
 
 No other runtime dependency. Development only: `typescript` 7.0.2, `esbuild` 0.28.2, `@types/node` 24.19.4. The zip writer, icon generator, DevTools-protocol client, WebExtension type declarations and test shim are written in this repository to avoid further packages. `pnpm audit --prod`: 0 vulnerabilities (2026-11-26).
 
 ## License
 
-Apache-2.0 (see [LICENSE](LICENSE)); third-party notices in [NOTICE](NOTICE). Copyright 2026 The ActionGuard Authors.
+Apache-2.0 (see [LICENSE](LICENSE)); third-party notices in [NOTICE](NOTICE). Copyright 2026 The SafetyCatch Authors.
 
 See also: [THREAT_MODEL.md](THREAT_MODEL.md), [ROADMAP.md](ROADMAP.md), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CHANGELOG.md](CHANGELOG.md), [docs/](docs/).

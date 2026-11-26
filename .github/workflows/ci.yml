@@ -17,36 +17,36 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         node: [22, 24]
     steps:
-      # The extension consumes the engine as "link:../actionguard-engine", so both
+      # The extension consumes the engine as "link:../safetycatch-engine", so both
       # repositories are checked out side by side, as they sit on a developer's disk.
       # Assumption: the engine lives in the same GitHub organisation or account.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          path: actionguard-browser
+          path: safetycatch-browser-extension
           persist-credentials: false
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: ${{ github.repository_owner }}/actionguard-engine
-          path: actionguard-engine
+          repository: ${{ github.repository_owner }}/safetycatch-engine
+          path: safetycatch-engine
           persist-credentials: false
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
-          package_json_file: actionguard-browser/package.json
+          package_json_file: safetycatch-browser-extension/package.json
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.node }}
       - name: Install the engine
-        working-directory: actionguard-engine
+        working-directory: safetycatch-engine
         run: pnpm install --frozen-lockfile
       - name: Build the engine
-        working-directory: actionguard-engine
+        working-directory: safetycatch-engine
         run: pnpm run build
       - name: Install
-        working-directory: actionguard-browser
+        working-directory: safetycatch-browser-extension
         run: pnpm install --frozen-lockfile
       - name: Typecheck, test and build both browser targets
-        working-directory: actionguard-browser
+        working-directory: safetycatch-browser-extension
         run: pnpm run check
       - name: Audit runtime dependencies
-        working-directory: actionguard-browser
+        working-directory: safetycatch-browser-extension
         run: pnpm audit --prod

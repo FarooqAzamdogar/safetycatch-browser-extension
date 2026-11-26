@@ -1,9 +1,9 @@
 {
-  "name": "actionguard-browser",
+  "name": "safetycatch-browser-extension",
   "version": "0.1.0",
   "description": "Browser extension (Chrome, Edge, Firefox) that guards the risky step an attack needs: pasting a hidden command, entering a device code, approving an OAuth app, signing in on a look-alike page, pasting secrets into an AI chat, or opening a risky download.",
   "license": "Apache-2.0",
-  "author": "The ActionGuard Authors",
+  "author": "The SafetyCatch Authors",
   "type": "module",
   "private": true,
   "engines": {
@@ -27,7 +27,7 @@
     "dlp"
   ],
   "dependencies": {
-    "actionguard-engine": "link:../actionguard-engine"
+    "safetycatch-engine": "link:../safetycatch-engine"
   },
   "devDependencies": {
     "@types/node": "24.19.4",

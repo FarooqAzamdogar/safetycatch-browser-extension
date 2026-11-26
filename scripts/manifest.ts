@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 //
 // The extension manifest, generated per browser. Kept in code so tests can
@@ -19,7 +19,7 @@ export const HOST_PERMISSIONS = ['http://*/*', 'https://*/*'] as const;
 export const EXTENSION_CSP = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 
 /** Placeholder add-on id for Firefox; the owner replaces it before a store submission. */
-export const FIREFOX_ID = 'actionguard-browser@actionguard.example';
+export const FIREFOX_ID = 'safetycatch-browser-extension@safetycatch.example';
 
 export const MIN_CHROME = '120';
 export const MIN_FIREFOX = '128.0';
@@ -36,12 +36,12 @@ export function buildManifest(target: Target, version: string): Record<string, u
   const manifest: Record<string, unknown> = {
     manifest_version: 3,
     name: '__MSG_extName__',
-    short_name: 'ActionGuard',
+    short_name: 'SafetyCatch',
     description: '__MSG_extDescription__',
     version,
     default_locale: 'en',
     icons,
-    action: { default_title: 'ActionGuard', default_popup: 'popup.html', default_icon: icons },
+    action: { default_title: 'SafetyCatch', default_popup: 'popup.html', default_icon: icons },
     options_ui: { page: 'options.html', open_in_tab: true },
     permissions: [...PERMISSIONS],
     host_permissions: [...HOST_PERMISSIONS],

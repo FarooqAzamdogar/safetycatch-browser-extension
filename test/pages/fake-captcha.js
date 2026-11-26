@@ -1,4 +1,4 @@
-// ActionGuard test page script. The copied string is put together at run time
+// SafetyCatch test page script. The copied string is put together at run time
 // from small pieces, so no file in this repository contains a ready-made
 // command line, and what it builds is harmless: a hidden window that prints
 // one line of text and closes.
@@ -8,7 +8,7 @@
   const say = (text) => {
     status.textContent = text;
   };
-  const pieces = ['pow', 'ersh', 'ell', ' -w hid', 'den', ' -c "Write-Out', "put 'ActionGuard test: nothing was run'", '"', ' # I am not a ro', 'bot - reCAPT', 'CHA Verification ID: 4821'];
+  const pieces = ['pow', 'ersh', 'ell', ' -w hid', 'den', ' -c "Write-Out', "put 'SafetyCatch test: nothing was run'", '"', ' # I am not a ro', 'bot - reCAPT', 'CHA Verification ID: 4821'];
   const command = () => pieces.join('');
   window.testCommand = command;
 
@@ -54,7 +54,7 @@
   });
 
   document.getElementById('benign').addEventListener('click', async () => {
-    await navigator.clipboard.writeText('Hello from the ActionGuard test page.');
+    await navigator.clipboard.writeText('Hello from the SafetyCatch test page.');
     say('plain sentence copied');
   });
   document.getElementById('link').addEventListener('click', async () => {

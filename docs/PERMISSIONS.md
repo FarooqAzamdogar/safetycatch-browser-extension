@@ -1,6 +1,6 @@
 # Permissions
 
-ActionGuard asks for four permissions and for access to web pages. This page explains each one, what the browser tells the person at install time, and what the extension deliberately does **not** ask for. The list lives in `scripts/manifest.ts`; a unit test fails if it changes without this page in mind.
+SafetyCatch asks for four permissions and for access to web pages. This page explains each one, what the browser tells the person at install time, and what the extension deliberately does **not** ask for. The list lives in `scripts/manifest.ts`; a unit test fails if it changes without this page in mind.
 
 ## Requested
 
@@ -35,7 +35,7 @@ ActionGuard asks for four permissions and for access to web pages. This page exp
 - **Browser warning:** "Read and change all your data on all websites".
 - **Limits we set ourselves:** only `http` and `https` (no `file://`, no `ftp://`); page text is read only when a check needs it (a suspicious copy, a password box, a platform page with instruction words) and is sent only to the extension's own service worker; nothing is stored or transmitted.
 - **Firefox:** site access is optional in Manifest V3. The person must allow "Access your data for all websites" in about:addons, and can restrict it to chosen sites.
-- **Chrome and Edge:** the person can restrict site access per extension ("On click", "On specific sites") from the extensions page. ActionGuard then protects only where it is allowed to run.
+- **Chrome and Edge:** the person can restrict site access per extension ("On click", "On specific sites") from the extensions page. SafetyCatch then protects only where it is allowed to run.
 
 ## Not requested
 

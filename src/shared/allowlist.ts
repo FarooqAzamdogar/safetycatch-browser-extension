@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 
 /** A site the person chose to trust. Warnings are switched off there until `expiresAt`. */

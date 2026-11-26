@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 //
 // Helpers shared by the popup, the options page and the download prompt.

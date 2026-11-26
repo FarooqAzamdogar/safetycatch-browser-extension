@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 
 /**
@@ -11,7 +11,7 @@
  * neutral "could not check" state and never into "safe".
  */
 
-import type { SecretsVerdict, Verdict } from 'actionguard-engine';
+import type { SecretsVerdict, Verdict } from 'safetycatch-engine';
 import { addTrust, findTrust, normalizePattern, removeTrust, TRUST_DURATIONS, type TrustEntry } from '../shared/allowlist.ts';
 import { asAuthFlow, decideAiPaste, decideAuth, decideDownload, decideLogin, decideLure, decidePaste } from '../shared/decisions.ts';
 import { downloadName, opsForChoice, sanitizePending, type DownloadOp, type PendingDownload } from '../shared/downloads.ts';

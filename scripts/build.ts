@@ -1,9 +1,9 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 //
 // Builds the extension for Chrome/Edge and for Firefox:
 //   dist/chrome/, dist/firefox/                     load these as unpacked extensions
-//   dist/actionguard-browser-<version>-<target>.zip  store uploads (no source maps inside)
+//   dist/safetycatch-browser-extension-<version>-<target>.zip  store uploads (no source maps inside)
 //   dist/sourcemaps/<target>/                        readable source maps, kept out of the zips
 
 import { build } from 'esbuild';

@@ -1,4 +1,4 @@
-// ActionGuard test page script for the AI-chat paste guard.
+// SafetyCatch test page script for the AI-chat paste guard.
 (() => {
   const status = document.getElementById('status');
   // A made-up token in the shape of a GitHub token, assembled at run time so

@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 //
 // OPTIONAL real-browser smoke test (not part of `npm run check`):
@@ -37,7 +37,7 @@ const LIMIT_MS = 240_000;
 
 /** Host names that stand in for real sign-in and platform sites; all are mapped to the local test server. */
 const DEVICE_HOSTS = ['aka.ms', 'microsoft.com'];
-const PLATFORM_HOSTS = ['actionguard-test.weebly.com', 'actionguard-test.wixsite.com', 'actionguard-test.blogspot.com'];
+const PLATFORM_HOSTS = ['safetycatch-test.weebly.com', 'safetycatch-test.wixsite.com', 'safetycatch-test.blogspot.com'];
 
 function browsers(): string[] {
   const candidates = [
@@ -313,7 +313,7 @@ async function waitForExtension(cdp: Cdp): Promise<string> {
         const { sessionId } = await cdp.send('Target.attachToTarget', { targetId: worker.targetId, flatten: true });
         const r = await cdp.send('Runtime.evaluate', { expression: 'chrome.runtime.getManifest().short_name', returnByValue: true }, sessionId);
         await cdp.send('Target.detachFromTarget', { sessionId }).catch(() => undefined);
-        if (r.result?.value === 'ActionGuard') return String(worker.url).split('/')[2] as string;
+        if (r.result?.value === 'SafetyCatch') return String(worker.url).split('/')[2] as string;
         notOurs.add(String(worker.targetId));
       } catch {
         // the worker went away while we looked; try again on the next round
@@ -503,7 +503,7 @@ async function main(): Promise<void> {
     check('extension loads and its service worker starts', l.extensionId.length === 32);
 
     const tab = await Tab.open(cdp);
-    const NOTE = 'ActionGuard removed a risky command';
+    const NOTE = 'SafetyCatch removed a risky command';
     /** Ask the service worker for its state from an extension page; reports how long the answer took. */
     const probeWorker = async (): Promise<string> => {
       const probe = await Tab.open(cdp);
@@ -540,7 +540,7 @@ async function main(): Promise<void> {
       const clip = await readClipboard();
       check('fake CAPTCHA (clipboard API): clipboard is replaced by a harmless note', clip.startsWith(NOTE) && !clip.includes('Write-Output'), `clipboard: ${clip.slice(0, 120)}`);
       check('fake CAPTCHA: full-page warning explains what happened', view.modalText.includes('localhost') && view.modalText.includes('Real websites never ask'), view.modalText.slice(0, 200));
-      check('fake CAPTCHA: the copied command is shown as text in the warning', view.modalText.includes("Write-Output 'ActionGuard test"), view.modalText.slice(0, 400));
+      check('fake CAPTCHA: the copied command is shown as text in the warning', view.modalText.includes("Write-Output 'SafetyCatch test"), view.modalText.slice(0, 400));
       check('fake CAPTCHA: the page was told the copy worked (no retry signal)', (await tab.ev<string>('document.getElementById("status").textContent')).includes('copied'));
       // A hostile page tries to dismiss the warning with synthetic events.
       await tab.ev(`(() => { const host = document.documentElement.lastElementChild; for (const type of ['click', 'pointerdown', 'pointerup', 'keydown']) host.dispatchEvent(new MouseEvent(type, { bubbles: true, composed: true, clientX: 300, clientY: 300 })); host.click(); document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); return true; })()`);
@@ -597,7 +597,7 @@ async function main(): Promise<void> {
       await tab.goto(`${site}/fake-captcha.html`);
       await tab.click('#benign');
       await sleep(500);
-      check('benign copy (plain sentence) is untouched and shows no warning', (await readClipboard()) === 'Hello from the ActionGuard test page.' && (await noUi()));
+      check('benign copy (plain sentence) is untouched and shows no warning', (await readClipboard()) === 'Hello from the SafetyCatch test page.' && (await noUi()));
       await tab.click('#link');
       await sleep(500);
       check('benign copy (a link) is untouched and shows no warning', (await readClipboard()) === 'https://example.com/some/page?x=1' && (await noUi()));
@@ -753,8 +753,10 @@ async function main(): Promise<void> {
         results.push('SKIP  platform lure: the browser forces https for every stand-in host name (see docs/MANUAL_TEST.md)');
         return;
       }
-      const view = await tab.waitUi((v) => v.bannerText.includes('written by an unknown person'), 'the platform notice');
-      check('publish-anything platform with download-and-run steps: calm notice', view.modalText.trim() === '' && view.bannerText.includes('Where you are'), view.bannerText.slice(0, 200));
+      // The test page is a fake 'fix' that also says to choose 'Run anyway': since engine 0.1.1 that is a real lure,
+      // so it gets the strong warning (plain download steps on such platforms get the calm notice; see test/core.test.ts).
+      const view = await tab.waitUi((v) => (v.modalText + v.bannerText).includes('Do not follow the steps on this page'), 'the platform lure warning');
+      check('publish-anything platform with a fake fix plus Run anyway: strong warning', (view.modalText + view.bannerText).includes('Anyone can publish a page on this service'), (view.modalText + view.bannerText).slice(0, 160));
     });
 
     await group('popup and storage', async () => {

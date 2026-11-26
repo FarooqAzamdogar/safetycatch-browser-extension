@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 
 import { sanitizeTrustList, type TrustEntry } from './allowlist.ts';
@@ -28,7 +28,7 @@ export const DEFAULT_AI_SITES: readonly string[] = [
 
 export const MAX_AI_SITES = 100;
 export const MAX_IMPORT_CHARS = 200_000;
-export const EXPORT_APP = 'actionguard-browser';
+export const EXPORT_APP = 'safetycatch-browser-extension';
 
 export interface Settings {
   version: 1;

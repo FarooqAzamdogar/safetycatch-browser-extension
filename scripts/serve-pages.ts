@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 //
 // Tiny local web server for the harmless test pages in test/pages/.
@@ -42,7 +42,7 @@ export function startPages(port: number): Promise<PageServer> {
       // Made-up files with risky-looking names. The content is always this one harmless line.
       const name = basename(path).replace(/[^A-Za-z0-9._ -]/g, '_');
       res.writeHead(200, { ...headers, 'Content-Type': 'application/octet-stream', 'Content-Disposition': `attachment; filename="${name}"` });
-      res.end('// Harmless ActionGuard test file. It does nothing.\n');
+      res.end('// Harmless SafetyCatch test file. It does nothing.\n');
       return;
     }
     const file = ROUTES[path] ?? basename(path);
@@ -82,5 +82,5 @@ export function startPages(port: number): Promise<PageServer> {
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const wanted = Number(process.argv[2] ?? process.env['PORT'] ?? 8377);
   const server = await startPages(Number.isInteger(wanted) ? wanted : 8377);
-  console.log(`ActionGuard test pages: http://localhost:${server.port}/  (Ctrl+C to stop)`);
+  console.log(`SafetyCatch test pages: http://localhost:${server.port}/  (Ctrl+C to stop)`);
 }

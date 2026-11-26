@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 
 /**
@@ -14,8 +14,8 @@
  * without calling anything the page could have replaced.
  */
 
-export const HELLO_MAIN = 'actionguard:hello-main';
-export const HELLO_ISO = 'actionguard:hello-iso';
+export const HELLO_MAIN = 'safetycatch:hello-main';
+export const HELLO_ISO = 'safetycatch:hello-iso';
 export const UP_PREFIX = 'ag-u-';
 export const DOWN_PREFIX = 'ag-d-';
 export const TOKEN_CHARS = 32;

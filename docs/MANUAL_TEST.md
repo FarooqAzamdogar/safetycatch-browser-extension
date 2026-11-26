@@ -7,8 +7,8 @@ Everything here is harmless. The test pages are local files served from your own
 ## Set up
 
 ```bash
-cd actionguard-engine && pnpm install --frozen-lockfile && pnpm run build
-cd ../actionguard-browser && pnpm install --frozen-lockfile && pnpm run build
+cd safetycatch-engine && pnpm install --frozen-lockfile && pnpm run build
+cd ../safetycatch-browser-extension && pnpm install --frozen-lockfile && pnpm run build
 pnpm run serve          # leave this running; serves http://localhost:8377/
 ```
 
@@ -19,9 +19,9 @@ Open <http://localhost:8377/>.
 ## 1. Paste guard
 
 1. Open **Fake "verify you are human" page**. Click **I'm not a robot**.
-   - Expected: a full-page ActionGuard warning titled "This page secretly copied a command". It names `localhost`, shows the copied text in a grey box, and says the clipboard was replaced by a harmless note.
+   - Expected: a full-page SafetyCatch warning titled "This page secretly copied a command". It names `localhost`, shows the copied text in a grey box, and says the clipboard was replaced by a harmless note.
 2. Open a text editor and paste.
-   - Expected: `ActionGuard removed a risky command that a web page copied...`, not a command.
+   - Expected: `SafetyCatch removed a risky command that a web page copied...`, not a command.
 3. Back on the page, press **Keep it removed**. The warning closes.
 4. Click **I'm not a robot** again. Click the **Hold to put the command back** button briefly: nothing happens. Press and hold it until the bar fills (about a second and a half). Paste into the text editor.
    - Expected: now the harmless test command is pasted (it starts with the word for Windows' command shell and ends with a fake "Verification ID"). Do not run it; it would only print a line of text.
@@ -58,7 +58,7 @@ Open <http://localhost:8377/>.
 1. Open **Download with a disguised name**. Click **Download notes**.
    - Expected: an ordinary download, no question.
 2. Click **Download invoice**.
-   - Expected: a small ActionGuard window "This download looks risky" naming `Invoice_2026.pdf.js`. The toolbar icon shows a red "!".
+   - Expected: a small SafetyCatch window "This download looks risky" naming `Invoice_2026.pdf.js`. The toolbar icon shows a red "!".
 3. Press **Cancel the download**.
    - Expected: the window confirms the cancellation; the download list shows it as cancelled (or the file is gone).
 4. Repeat and hold **Hold to continue the download**: the download completes. Delete the file afterwards (it is one line of text).
@@ -82,7 +82,7 @@ The notice appears only on platform host names (shared AI chats, site builders, 
 
 - Automated: `pnpm run smoke` maps a stand-in platform host name to the local server and checks the notice.
 - By hand: start the browser with a host mapping, for example
-  `chrome --user-data-dir=/tmp/ag-test --host-resolver-rules="MAP actionguard-test.weebly.com 127.0.0.1"`, load the extension, and open `http://actionguard-test.weebly.com:8377/help/fix-update`.
+  `chrome --user-data-dir=/tmp/ag-test --host-resolver-rules="MAP safetycatch-test.weebly.com 127.0.0.1"`, load the extension, and open `http://safetycatch-test.weebly.com:8377/help/fix-update`.
   - Expected: a blue banner "This page was written by an unknown person".
 
 ## 7. Popup and options
@@ -95,7 +95,7 @@ The notice appears only on platform host names (shared AI chats, site builders, 
 4. Change the language to Arabic or Urdu and trigger a warning.
    - Expected: the warning reads right to left; the copied command inside the grey box still reads left to right; the options page shows the machine-translation note.
 5. Open the popup on `chrome://extensions` (or `about:addons`).
-   - Expected: "ActionGuard cannot run on this page".
+   - Expected: "SafetyCatch cannot run on this page".
 
 ## 8. Accessibility spot checks
 
@@ -106,7 +106,7 @@ The notice appears only on platform host names (shared AI chats, site builders, 
 
 ## 9. Fail-safe check
 
-1. On the extensions page, click the "service worker" link for ActionGuard to open its DevTools, and in the console run `chrome.runtime.reload()`.
+1. On the extensions page, click the "service worker" link for SafetyCatch to open its DevTools, and in the console run `chrome.runtime.reload()`.
 2. Without reloading the test tab, go back to the fake CAPTCHA page (opened before the reload) and click **I'm not a robot**.
    - Expected: the page behaves as if no extension were installed (the old page scripts step aside after an update). Reload the tab: protection is back.
 

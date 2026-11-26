@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 //
 // The service worker's logic, run with the real detection engine, in-memory
@@ -32,7 +32,7 @@ test('clipboard: a ClickFix command copied by a page is blocked, explained and r
   const sample = clickFixSample();
   const r = (await h.core.handleContent(clip(sample, { pageText: LURE_PAGE_TEXT }), from(PAGE))) as ClipboardReply;
   assert.equal(r.action, 'block');
-  assert.match(r.note ?? '', /^ActionGuard removed a risky command/);
+  assert.match(r.note ?? '', /^SafetyCatch removed a risky command/);
   const m = model(r.model);
   assert.equal(m.kind, 'paste-block');
   assert.equal(m.layout, 'page');
@@ -53,13 +53,13 @@ test('clipboard: nothing about the copied text or the page is stored', async () 
   await h.core.handleContent(clip(harmlessLure(), { pageText: LURE_PAGE_TEXT }), from(`${PAGE}?session=secret-id-123`));
   await h.core.idle();
   const stored = JSON.stringify(h.local.data);
-  for (const leak of ['Write-Output', 'ActionGuard test', 'Verify you are human', 'secret-id-123', '/verify']) assert.equal(stored.includes(leak), false, leak);
+  for (const leak of ['Write-Output', 'SafetyCatch test', 'Verify you are human', 'secret-id-123', '/verify']) assert.equal(stored.includes(leak), false, leak);
   assert.deepEqual(Object.keys((await history(h))[0] ?? {}).sort(), ['a', 'd', 'l', 'm', 'r', 't']);
 });
 
 test('clipboard: ordinary text and developer commands are allowed without any record', async () => {
   const h = harness();
-  for (const text of ['Hello from the ActionGuard test page.', 'npm install express', 'git clone https://github.com/example/repo.git', 'docker run --rm -it -p 8080:80 nginx']) {
+  for (const text of ['Hello from the SafetyCatch test page.', 'npm install express', 'git clone https://github.com/example/repo.git', 'docker run --rm -it -p 8080:80 nginx']) {
     assert.deepEqual(await h.core.handleContent(clip(text), from('https://docs.example/')), { action: 'allow' }, text);
   }
   assert.equal((await history(h)).length, 0);
@@ -164,7 +164,7 @@ test('fail safe: when the engine throws, a command-looking copy is still blocked
   const benign = (await h.core.handleContent(clip('some; text that needed a check'), from(PAGE))) as ClipboardReply;
   assert.equal(benign.action, 'unchecked');
   assert.equal(model(benign.model).title, 'Could not check copied text');
-  assert.equal(allText(model(benign.model)).toLowerCase().includes('safe'), false);
+  assert.equal(/safe/i.test(allText(model(benign.model))), false, 'never call unchecked text safe');
 });
 
 test('fail safe: an "incomplete" verdict from the engine counts as not checked', async () => {
@@ -494,7 +494,7 @@ test('settings from the options page are sanitised before they are saved', async
 test('import and clear-history', async () => {
   const h = harness();
   assert.deepEqual(await h.core.handlePage({ type: 'import-settings', json: 'not json' }), { ok: false, error: 'not-json' });
-  const json = JSON.stringify({ app: 'actionguard-browser', settings: { language: 'hi', modules: { aiPaste: false } } });
+  const json = JSON.stringify({ app: 'safetycatch-browser-extension', settings: { language: 'hi', modules: { aiPaste: false } } });
   assert.deepEqual(await h.core.handlePage({ type: 'import-settings', json }), { ok: true });
   const s = (await h.core.handlePage({ type: 'get-state', url: '' })) as StateReply;
   assert.equal(s.locale, 'hi');

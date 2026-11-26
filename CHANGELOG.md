@@ -6,7 +6,7 @@ All notable changes to this project are documented in this file. The format is b
 
 ### Changed
 
-- Switched from npm to pnpm 11 (`packageManager: pnpm@11.29.0`, `pnpm-lock.yaml`). pnpm keeps one shared copy of each package on disk and hard-links it into every project, which cut the suite's dependency footprint on a development PC. pnpm 11 is used because it is plain JavaScript; pnpm 12 ships an unsigned native executable. Dependency install scripts are not allowed to run (`pnpm-workspace.yaml`). Package scripts chain with `node --run`. The engine is now linked live (`link:../actionguard-engine`) instead of copied.
+- Switched from npm to pnpm 11 (`packageManager: pnpm@11.29.0`, `pnpm-lock.yaml`). pnpm keeps one shared copy of each package on disk and hard-links it into every project, which cut the suite's dependency footprint on a development PC. pnpm 11 is used because it is plain JavaScript; pnpm 12 ships an unsigned native executable. Dependency install scripts are not allowed to run (`pnpm-workspace.yaml`). Package scripts chain with `node --run`. The engine is now linked live (`link:../safetycatch-engine`) instead of copied.
 - CI uses `pnpm/action-setup` and current pinned versions of `actions/checkout` and `actions/setup-node`.
 
 ## [0.1.0] - 2026-11-26

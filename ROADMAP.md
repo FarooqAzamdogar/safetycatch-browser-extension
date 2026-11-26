@@ -1,6 +1,6 @@
 # Roadmap
 
-Where actionguard-browser goes after 0.1.0. Order within a section is the intended order of work. Nothing here is a promise.
+Where safetycatch-browser-extension goes after 0.1.0. Order within a section is the intended order of work. Nothing here is a promise.
 
 ## Before a first store release (0.2)
 

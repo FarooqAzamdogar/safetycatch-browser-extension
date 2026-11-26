@@ -1,10 +1,10 @@
 # Store listing (draft)
 
-Draft text for the Chrome Web Store, Microsoft Edge Add-ons and Firefox Add-ons (AMO). Nothing has been submitted. "ActionGuard" is a working name: confirm it (trademark search) before submitting, and replace every placeholder in square brackets.
+Draft text for the Chrome Web Store, Microsoft Edge Add-ons and Firefox Add-ons (AMO). Nothing has been submitted. "SafetyCatch" is a working name: confirm it (trademark search) before submitting, and replace every placeholder in square brackets.
 
 ## Name (up to 75 characters)
 
-ActionGuard: paste, sign-in and download guard
+SafetyCatch: paste, sign-in and download guard
 
 ## Short description (up to 132 characters; this is `extDescription` in the catalogs)
 
@@ -20,16 +20,16 @@ Warn the user at the moment of a risky action on a web page: pasting a copied co
 
 ## Detailed description
 
-Scammers change web addresses every few hours, so lists of "bad sites" are always behind. What does not change is the step they need from you. ActionGuard watches for that step and explains, in plain words, what is happening.
+Scammers change web addresses every few hours, so lists of "bad sites" are always behind. What does not change is the step they need from you. SafetyCatch watches for that step and explains, in plain words, what is happening.
 
 WHAT IT DOES
 
-- Fake "verify you are human" pages. Some pages secretly copy a command and tell you to paste it into the Run box, PowerShell or Terminal. ActionGuard replaces the copied command with a harmless note before you can paste, and shows you what the page tried to copy.
-- "Enter this code" sign-in pages. Scammers send people a code and a link to a real Microsoft, Google or GitHub sign-in page; entering the code signs the scammer in. ActionGuard explains this on the page, and asks you to stop and think if you arrived from an email, a chat or another site.
-- "This app wants access" pages. ActionGuard lists what an app is asking for in plain language (for example "Send email as you") before you approve it.
-- Look-alike sign-in pages. When a page that imitates a well-known brand asks for your password, ActionGuard stops the typing and shows you the brand's real address.
-- Pages anyone can publish. On shared AI chats, site builders and similar services, ActionGuard reminds you that paste or download instructions were written by an unknown person, not by the company in the address bar.
-- Secrets in AI chats. If text you paste into an AI chat contains a password, key, card or ID number, ActionGuard offers to paste it with the secrets hidden.
+- Fake "verify you are human" pages. Some pages secretly copy a command and tell you to paste it into the Run box, PowerShell or Terminal. SafetyCatch replaces the copied command with a harmless note before you can paste, and shows you what the page tried to copy.
+- "Enter this code" sign-in pages. Scammers send people a code and a link to a real Microsoft, Google or GitHub sign-in page; entering the code signs the scammer in. SafetyCatch explains this on the page, and asks you to stop and think if you arrived from an email, a chat or another site.
+- "This app wants access" pages. SafetyCatch lists what an app is asking for in plain language (for example "Send email as you") before you approve it.
+- Look-alike sign-in pages. When a page that imitates a well-known brand asks for your password, SafetyCatch stops the typing and shows you the brand's real address.
+- Pages anyone can publish. On shared AI chats, site builders and similar services, SafetyCatch reminds you that paste or download instructions were written by an unknown person, not by the company in the address bar.
+- Secrets in AI chats. If text you paste into an AI chat contains a password, key, card or ID number, SafetyCatch offers to paste it with the secrets hidden.
 - Disguised downloads. Files such as "Invoice.pdf.js" are paused, and you are asked first.
 
 HOW IT TREATS YOU
@@ -41,16 +41,16 @@ HOW IT TREATS YOU
 PRIVACY
 
 - Everything runs on your device. Nothing is sent anywhere: no accounts, no analytics, no tracking.
-- ActionGuard cannot read your clipboard. It can only replace a dangerous command that a page tried to copy.
+- SafetyCatch cannot read your clipboard. It can only replace a dangerous command that a page tried to copy.
 - It keeps your settings and a short list of recent warnings (site name, kind of warning, time) on your device. It never stores page content, copied text or passwords.
 
 HONEST LIMITS
 
-- ActionGuard only sees your browser. It cannot protect you from phone calls, QR codes scanned with a phone, or commands you type by hand.
+- SafetyCatch only sees your browser. It cannot protect you from phone calls, QR codes scanned with a phone, or commands you type by hand.
 - It will sometimes warn about something harmless, and it will not catch everything. It is one layer of protection, not a guarantee.
 - Translations other than English were made by a machine and are still being reviewed.
 
-A real ActionGuard warning never asks you to paste, type or approve anything. If a web page says "ActionGuard needs you to press Allow", it is not us.
+A real SafetyCatch warning never asks you to paste, type or approve anything. If a web page says "SafetyCatch needs you to press Allow", it is not us.
 
 Open source (Apache-2.0): [REPOSITORY URL]
 
@@ -80,5 +80,5 @@ No user data is collected or transmitted. See [PRIVACY.md](PRIVACY.md) (publish 
 1. Replace the Firefox add-on id in `scripts/manifest.ts` (`FIREFOX_ID`) with the real one.
 2. Have native speakers review the translations, or submit English only at first.
 3. Run `pnpm run check` and `pnpm run smoke`, and walk through `docs/MANUAL_TEST.md` in each target browser, including a real Firefox.
-4. Upload `dist/actionguard-browser-<version>-chrome.zip` (Chrome, Edge) and `...-firefox.zip` (AMO). AMO also asks for the source: the repository at the release tag plus the sibling `actionguard-engine` at its tag, with the build steps from the README.
+4. Upload `dist/safetycatch-browser-extension-<version>-chrome.zip` (Chrome, Edge) and `...-firefox.zip` (AMO). AMO also asks for the source: the repository at the release tag plus the sibling `safetycatch-engine` at its tag, with the build steps from the README.
 5. Brand names in listings: describe what is detected ("look-alike sign-in pages of well-known brands") rather than naming brands in the title or screenshots.

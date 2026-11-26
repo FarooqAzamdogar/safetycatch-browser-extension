@@ -1,10 +1,10 @@
 # Privacy policy
 
-*ActionGuard browser extension. Draft for store submission. Last updated 26 November 2026.*
+*SafetyCatch browser extension. Draft for store submission. Last updated 26 November 2026.*
 
 ## The short version
 
-ActionGuard does not collect, send, sell or share any data. Everything it does happens inside your browser, on your device. There are no accounts, no analytics, no advertising and no servers.
+SafetyCatch does not collect, send, sell or share any data. Everything it does happens inside your browser, on your device. There are no accounts, no analytics, no advertising and no servers.
 
 ## What the extension looks at
 

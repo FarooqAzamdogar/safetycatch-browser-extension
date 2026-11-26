@@ -1,10 +1,10 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { SUPPORTED_LOCALES } from 'actionguard-engine';
+import { SUPPORTED_LOCALES } from 'safetycatch-engine';
 import { LOCALE_FOLDERS, localeDir, localeFolder, makeTranslate, parseMessages, pickLocale, placeholdersOf, RTL_LOCALES, UI_LOCALES } from '../src/shared/i18n.ts';
 import { LANGUAGE_CHOICES } from '../src/shared/settings.ts';
 import { localeFolders, localeNote, messagesJson, readLocale } from '../scripts/locales.ts';

@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 
 /**
@@ -8,7 +8,7 @@
  * happened, why it is risky, what to do next.
  */
 
-import type { Verdict } from 'actionguard-engine';
+import type { Verdict } from 'safetycatch-engine';
 import type { PasteSource } from '../shared/decisions.ts';
 import type { Translate } from '../shared/i18n.ts';
 import { maxOf, rank, type RiskLevel } from '../shared/levels.ts';

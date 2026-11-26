@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 
 /**
@@ -12,7 +12,7 @@
  * downloads in `storage.session` (memory-backed, never written to disk).
  */
 
-import * as engine from 'actionguard-engine';
+import * as engine from 'safetycatch-engine';
 import type { DownloadOp } from '../shared/downloads.ts';
 import { isContentType, parseContentRequest, parsePageRequest, type PageRequest } from '../shared/protocol.ts';
 import { SETTINGS_KEY } from '../shared/settings.ts';

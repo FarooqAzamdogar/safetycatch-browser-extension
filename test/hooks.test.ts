@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 //
 // The page-world clipboard hooks and their private channel to the content
@@ -257,7 +257,7 @@ test('a page cannot approve its own write without the secret channel name', asyn
   void r.clipboard.writeText('needs approval').then(() => {
     done = true;
   });
-  for (const name of [DOWN_PREFIX, `${DOWN_PREFIX}${'0'.repeat(32)}`, `${UP_PREFIX}guess`, 'actionguard:allow']) {
+  for (const name of [DOWN_PREFIX, `${DOWN_PREFIX}${'0'.repeat(32)}`, `${UP_PREFIX}guess`, 'safetycatch:allow']) {
     r.target.dispatchEvent(new CustomEvent(name, { detail: '1\na', cancelable: true }));
   }
   await tick();

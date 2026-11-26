@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 
 /**
@@ -55,7 +55,7 @@ export function installHooks(w: Any): void {
   const fnString = w.Function.prototype.toString;
   const iteratorKey = w.Symbol.iterator;
   /** Marks our own wrappers, so a frame hooked from its parent is not wrapped a second time by its own copy of this script. */
-  const MARK = w.Symbol.for('actionguard.hook');
+  const MARK = w.Symbol.for('safetycatch.hook');
   const WeakSetCtor = w.WeakSet;
   const setHas = WeakSetCtor.prototype.has;
   const setAdd = WeakSetCtor.prototype.add;

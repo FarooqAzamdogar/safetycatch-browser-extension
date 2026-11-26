@@ -1,6 +1,6 @@
 # Threat model
 
-This document describes what actionguard-browser protects, who attacks it, where the trust boundaries are, and which risks remain. It covers the extension itself; the detection rules are covered by the engine's own threat model.
+This document describes what safetycatch-browser-extension protects, who attacks it, where the trust boundaries are, and which risks remain. It covers the extension itself; the detection rules are covered by the engine's own threat model.
 
 ## What we protect
 
@@ -15,7 +15,7 @@ This document describes what actionguard-browser protects, who attacks it, where
 ## Who attacks
 
 1. **The page author** (main adversary). Controls every script, style and pixel of a page the person visits, including pages inside iframes. Wants the person to paste a command, enter a code, type a password or open a file, and wants our warning not to appear, to be dismissed, or to be ignored.
-2. **A page that knows about the extension.** Same as above, but it detects ActionGuard and adapts.
+2. **A page that knows about the extension.** Same as above, but it detects SafetyCatch and adapts.
 3. **A hostile file or data input.** Imported settings files, values in storage, messages between parts of the extension.
 4. **Another extension or local malware.** Out of scope (see below).
 
@@ -71,12 +71,12 @@ Residual risk: in a frame the page creates and scripts *before* the browser has 
 | Cover it with a higher `z-index` | Full-page warnings are shown in the browser's top layer (popover), above all `z-index` values |
 | Cover it with *another* top-layer element (a page popover, dialog or fullscreen element opened later) | The guardian puts the warning back on top within 0.4 s, but a page can keep fighting. A page that controls its own pixels can always win this race for moments at a time. **This is why the protective step never depends on the warning:** the clipboard has been neutralised, the paste held, the typing stopped or the download paused *before* the warning is drawn. Hiding the warning hides an explanation, not the protection |
 | Clickjacking: draw something over the "hold to put the command back" button so the person holds it without knowing | Undoing a protection needs a press-and-hold of 1.5 s (or typing a word), never a single click. In Chromium the button also uses a visibility-tracking IntersectionObserver: if other content is painted over it, or it has been made transparent or transformed, the hold is refused and a message says the warning is covered. Firefox lacks that API, so there only the hold (or typed word) stands in the way |
-| Draw a fake ActionGuard warning that says "this page is safe" or tells the person to "press Allow" | Cannot be prevented: a page can draw anything. Real ActionGuard warnings never tell the person to paste, type or approve anything, never appear inside the page's layout, and ask for a hold or a typed word only to undo a protection. The README and store listing say so |
+| Draw a fake SafetyCatch warning that says "this page is safe" or tells the person to "press Allow" | Cannot be prevented: a page can draw anything. Real SafetyCatch warnings never tell the person to paste, type or approve anything, never appear inside the page's layout, and ask for a hold or a typed word only to undo a protection. The README and store listing say so |
 | Train the person to dismiss warnings by provoking false alarms | Notices are rate-limited (one of a kind per 30 s), identical writes within 5 s reuse one verdict, and at most one full-page warning is shown at a time |
 
 ### Fingerprinting and evading the extension
 
-A page can tell that ActionGuard is installed: the hooked functions are not native (`toString()` shows it), a warning host element appears in the DOM when a warning is shown, and timing differs slightly. We do not try to hide: hiding is a losing game and risks breaking pages.
+A page can tell that SafetyCatch is installed: the hooked functions are not native (`toString()` shows it), a warning host element appears in the DOM when a warning is shown, and timing differs slightly. We do not try to hide: hiding is a losing game and risks breaking pages.
 
 What a page can do with that knowledge:
 
@@ -113,7 +113,7 @@ We do not treat fingerprinting as a vulnerability unless it exposes extension in
 - **Attacks that do not touch the browser**: phone calls, QR codes scanned with a phone, commands typed by hand from a picture, other applications writing to the clipboard.
 - **A compromised browser, operating system or profile**, other malicious extensions, or malware already running on the device.
 - **Network attackers.** The extension makes no connections.
-- **Correctness of the verdicts.** False negatives and false positives of the rules belong to actionguard-engine. The extension's job is to deliver the right text to the engine and act on the verdict faithfully.
+- **Correctness of the verdicts.** False negatives and false positives of the rules belong to safetycatch-engine. The extension's job is to deliver the right text to the engine and act on the verdict faithfully.
 - **Password managers and autofill** entering a password on a look-alike page without key presses.
 
 ## Assumptions worth re-checking

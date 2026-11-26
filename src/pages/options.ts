@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 //
 // Options page: protection switches, AI-chat site list, trusted sites,
@@ -133,7 +133,7 @@ function render(loaded: Loaded): void {
     const blob = new Blob([exportSettings(current, Date.now())], { type: 'application/json' });
     const link = el('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'actionguard-settings.json';
+    link.download = 'safetycatch-settings.json';
     document.body.append(link);
     link.click();
     link.remove();

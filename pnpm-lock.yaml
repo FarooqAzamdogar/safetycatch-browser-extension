@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      actionguard-engine:
-        specifier: link:../actionguard-engine
-        version: link:../actionguard-engine
+      safetycatch-engine:
+        specifier: link:../safetycatch-engine
+        version: link:../safetycatch-engine
     devDependencies:
       '@types/node':
         specifier: 24.19.4

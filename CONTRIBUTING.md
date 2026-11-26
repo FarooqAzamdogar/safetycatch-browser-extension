@@ -8,8 +8,8 @@ Requirements: Node.js 22.18 or newer. No native tools are needed.
 
 ```bash
 # the engine sits next to this folder
-cd actionguard-engine && pnpm install --frozen-lockfile && pnpm run build
-cd ../actionguard-browser && pnpm install --frozen-lockfile
+cd safetycatch-engine && pnpm install --frozen-lockfile && pnpm run build
+cd ../safetycatch-browser-extension && pnpm install --frozen-lockfile
 
 pnpm run typecheck   # tsc --noEmit (strict)
 pnpm test            # node --test on the TypeScript sources
@@ -49,7 +49,7 @@ TypeScript is run directly by Node (type stripping), so only erasable syntax is 
 
 **An AI chat site.** Add it to `DEFAULT_AI_SITES` in `src/shared/settings.ts` (host, optionally with a path) and update the test that lists them.
 
-**A detection rule.** Rules live in actionguard-engine, not here. If a new engine rule needs a signal only the browser has, describe it in an issue first.
+**A detection rule.** Rules live in safetycatch-engine, not here. If a new engine rule needs a signal only the browser has, describe it in an issue first.
 
 **A permission.** Avoid it. If there is truly no other way, update `scripts/manifest.ts`, `docs/PERMISSIONS.md`, the README table and the manifest test in the same pull request, and explain what the browser will tell users at install or update time.
 

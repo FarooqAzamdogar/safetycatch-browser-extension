@@ -1,4 +1,4 @@
-/* Copyright 2026 The ActionGuard Authors. SPDX-License-Identifier: Apache-2.0 */
+/* Copyright 2026 The SafetyCatch Authors. SPDX-License-Identifier: Apache-2.0 */
 :root { color-scheme: light dark; --fg: #111827; --bg: #ffffff; --muted: #4b5563; --line: #d1d5db; --accent: #1d4ed8; --ok: #166534; --warn: #92400e; }
 @media (prefers-color-scheme: dark) { :root { --fg: #f9fafb; --bg: #111827; --muted: #d1d5db; --line: #4b5563; --accent: #93c5fd; --ok: #86efac; --warn: #fcd34d; } }
 * { box-sizing: border-box; }
