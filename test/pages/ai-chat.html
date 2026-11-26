@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chat assistant (test)</title>
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<p class="note">ActionGuard TEST PAGE. It imitates an AI chat box. Nothing you paste leaves this page. The "fake key" button copies a made-up token that only looks like a real one.</p>
+<div class="box">
+<h1>Ask anything</h1>
+<p>Rich editor (handles paste itself, like ProseMirror):</p>
+<div id="rich" class="editor" contenteditable="true" role="textbox" aria-label="Message (rich editor)"></div>
+<p>Plain editor (contenteditable without scripts):</p>
+<div id="plain" class="editor" contenteditable="true" role="textbox" aria-label="Message (plain editor)"></div>
+<p>Text area:</p>
+<textarea id="area" rows="3" aria-label="Message (text area)"></textarea>
+<p><button id="fake" type="button">Copy text with a fake key</button> <button id="clean" type="button">Copy text without secrets</button></p>
+<p id="status" role="status"></p>
+</div>
+<script src="ai-chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ActionGuard test pages</title>
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<h1>ActionGuard test pages</h1>
+<p>Local, harmless pages for trying the extension by hand and for <code>npm run smoke</code>. Nothing here contacts the internet. See <code>docs/MANUAL_TEST.md</code>.</p>
+<ul>
+<li><a href="fake-captcha.html">Fake "verify you are human" page</a> (paste guard). Variants: <a href="fake-captcha.html?via=exec">execCommand</a>, <a href="fake-captcha.html?via=event">copy-event hijack</a>, <a href="fake-captcha.html?via=frame">fresh iframe</a>.</li>
+<li><a href="lookalike-login.html">Look-alike sign-in form</a> (look-alike warning).</li>
+<li><a href="ai-chat.html">AI-chat-like editor</a> (secrets check; add <code>localhost</code> to the AI chat sites in the options first).</li>
+<li><a href="download.html">Download with a disguised name</a> (risky-download warning).</li>
+<li><a href="from-message.html">A page that links to a device-code page</a> (arrival from another site).</li>
+<li><a href="shared-page.html">Instructions on a publish-anything platform</a> (needs a platform host name, see the manual test guide).</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: check (node ${{ matrix.node }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [22, 24]
+    steps:
+      # The extension consumes the engine as "file:../actionguard-engine", so both
+      # repositories are checked out side by side, as they sit on a developer's disk.
+      # Assumption: the engine lives in the same GitHub organisation or account.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: actionguard-browser
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.repository_owner }}/actionguard-engine
+          path: actionguard-engine
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install the engine
+        working-directory: actionguard-engine
+        run: npm ci
+      - name: Build the engine
+        working-directory: actionguard-engine
+        run: npm run build
+      - name: Install
+        working-directory: actionguard-browser
+        run: npm ci
+      - name: Typecheck, test and build both browser targets
+        working-directory: actionguard-browser
+        run: npm run check
+      - name: Audit runtime dependencies
+        working-directory: actionguard-browser
+        run: npm audit --omit=dev

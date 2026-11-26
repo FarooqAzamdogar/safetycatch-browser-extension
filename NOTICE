@@ -1,0 +1,40 @@
+actionguard-browser
+Copyright 2026 The ActionGuard Authors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+The built extension (dist/, and the store zip files) bundles the components
+listed below. The source tree itself contains no third-party code.
+
+Third-party components bundled into background.js
+--------------------------------------------------
+
+actionguard-engine 0.1.0 (sibling project of the ActionGuard suite)
+  Copyright 2026 The ActionGuard Authors
+  License: Apache-2.0 (code) and CC-BY-4.0 (detection rules and data)
+  https://creativecommons.org/licenses/by/4.0/
+
+tldts and tldts-core 7.6.0 (dependency of actionguard-engine)
+  Copyright (c) 2017 Thomas Parisot, 2018 Remi Berson
+  License: MIT - https://github.com/remusao/tldts
+
+Public Suffix List data (embedded in tldts)
+  Source: https://publicsuffix.org/ - maintained by the Mozilla Foundation and contributors
+  License: Mozilla Public License 2.0 - https://mozilla.org/MPL/2.0/
+
+Other notices
+-------------
+
+Apache License 2.0 text
+  Obtained from https://www.apache.org/licenses/LICENSE-2.0.txt
+
+Build tools (not distributed): esbuild (MIT), TypeScript (Apache-2.0),
+@types/node (MIT).
+
+The ZIP writer, the PNG icon generator and the Chrome DevTools Protocol client
+used by the smoke test are written for this project from public format
+specifications (PKWARE APPNOTE, RFC 1951/1952, PNG specification); no
+third-party code was copied.
+
+Brand names that appear in test pages and documentation (for example
+"PayPal", "Microsoft", "ChatGPT") are trademarks of their owners and are used
+only to describe which impersonations the extension detects.

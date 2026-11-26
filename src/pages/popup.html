@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ActionGuard</title>
+<link rel="stylesheet" href="pages.css">
+</head>
+<body class="popup">
+<header>
+<img src="icons/icon-32.png" width="24" height="24" alt="">
+<h1 data-i18n="brand">ActionGuard</h1>
+</header>
+<p id="status" class="status" role="status"></p>
+<section id="trust" hidden></section>
+<section>
+<h2 data-i18n="popup_modules"></h2>
+<div id="modules"></div>
+</section>
+<section>
+<h2 data-i18n="recent_title"></h2>
+<ul id="recent" class="recent"></ul>
+<button id="clear" type="button" class="plain" data-i18n="recent_clear" hidden></button>
+</section>
+<footer>
+<button id="options" type="button" data-i18n="open_options"></button>
+<small id="version"></small>
+</footer>
+<script src="popup.js"></script>
+</body>
+</html>

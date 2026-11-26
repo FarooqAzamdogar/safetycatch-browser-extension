@@ -1,0 +1,7 @@
+body { font: 16px/1.5 system-ui, sans-serif; max-width: 720px; margin: 32px auto; padding: 0 16px; color: #111827; }
+.box { border: 1px solid #9ca3af; border-radius: 10px; padding: 18px; margin: 16px 0; }
+button { font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid #374151; background: #f3f4f6; cursor: pointer; }
+input, textarea { font: inherit; padding: 8px; width: 100%; box-sizing: border-box; margin: 4px 0 10px; }
+.editor { min-height: 60px; border: 1px solid #6b7280; border-radius: 8px; padding: 10px; white-space: pre-wrap; }
+.note { color: #4b5563; font-size: 14px; }
+#status { font-weight: 700; }

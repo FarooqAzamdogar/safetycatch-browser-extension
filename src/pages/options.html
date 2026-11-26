@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ActionGuard</title>
+<link rel="stylesheet" href="pages.css">
+</head>
+<body class="options">
+<main>
+<header>
+<img src="icons/icon-48.png" width="40" height="40" alt="">
+<h1 data-i18n="opt_title">ActionGuard</h1>
+</header>
+<p id="load-error" class="status off" role="alert" hidden></p>
+
+<section aria-labelledby="h-modules">
+<h2 id="h-modules" data-i18n="opt_modules"></h2>
+<div id="modules"></div>
+</section>
+
+<section aria-labelledby="h-ai">
+<h2 id="h-ai" data-i18n="opt_ai_title"></h2>
+<p class="hint" id="ai-help" data-i18n="opt_ai_help"></p>
+<textarea id="ai-sites" rows="8" spellcheck="false" aria-labelledby="h-ai" aria-describedby="ai-help"></textarea>
+<div class="row">
+<button id="ai-save" type="button" data-i18n="opt_save"></button>
+<button id="ai-reset" type="button" class="plain" data-i18n="opt_ai_reset"></button>
+<span id="ai-status" role="status"></span>
+</div>
+</section>
+
+<section aria-labelledby="h-trust">
+<h2 id="h-trust" data-i18n="opt_trust_title"></h2>
+<p class="hint" id="trust-help" data-i18n="opt_trust_help"></p>
+<ul id="trust-list" class="list"></ul>
+<form id="trust-form" class="row">
+<input id="trust-input" type="text" autocomplete="off" spellcheck="false" placeholder="example.com" aria-labelledby="h-trust" aria-describedby="trust-help" required>
+<select id="trust-duration" data-i18n-label="trust_for"></select>
+<button type="submit" data-i18n="opt_trust_add"></button>
+<span id="trust-status" role="alert"></span>
+</form>
+</section>
+
+<section aria-labelledby="h-lang">
+<h2 id="h-lang" data-i18n="opt_lang_title"></h2>
+<select id="language" aria-labelledby="h-lang"></select>
+<p id="mt-note" class="hint" data-i18n="opt_mt_note" hidden></p>
+</section>
+
+<section aria-labelledby="h-data">
+<h2 id="h-data" data-i18n="opt_data_title"></h2>
+<div class="row">
+<button id="export" type="button" data-i18n="opt_export"></button>
+<label class="file"><span data-i18n="opt_import"></span> <input id="import" type="file" accept=".json,application/json"></label>
+<span id="data-status" role="status"></span>
+</div>
+</section>
+
+<section aria-labelledby="h-stored">
+<h2 id="h-stored" data-i18n="opt_stored_title"></h2>
+<ul class="stored">
+<li data-i18n="opt_stored_1"></li>
+<li id="stored-2"></li>
+<li data-i18n="opt_stored_5"></li>
+<li data-i18n="opt_stored_3"></li>
+<li data-i18n="opt_stored_4"></li>
+</ul>
+</section>
+
+<footer><small id="version"></small></footer>
+</main>
+<script src="options.js"></script>
+</body>
+</html>

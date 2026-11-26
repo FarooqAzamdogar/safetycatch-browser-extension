@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Just a moment...</title>
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<p class="note">ActionGuard TEST PAGE. It imitates a fake CAPTCHA ("ClickFix") page. The command it copies is harmless: it only prints a line of text.</p>
+<div class="box">
+<h1>Verify you are human</h1>
+<p><button id="verify" type="button">I'm not a robot</button></p>
+<div id="steps" hidden>
+<p>To prove you are not a robot, complete these verification steps:</p>
+<ol>
+<li>Press <b>Windows + R</b></li>
+<li>Press <b>Ctrl + V</b></li>
+<li>Press <b>Enter</b></li>
+</ol>
+</div>
+</div>
+<div class="box">
+<p><button id="benign" type="button">Copy a plain sentence</button> <button id="link" type="button">Copy a link</button></p>
+<p id="status" role="status"></p>
+</div>
+<script src="fake-captcha.js"></script>
+</body>
+</html>

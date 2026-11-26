@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shared document</title>
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<p class="note">ActionGuard TEST PAGE. It imitates a page that sends you to a device-code sign-in page with a code, the way device-code phishing does.</p>
+<div class="box">
+<h1>You have been invited to a secure document</h1>
+<p>Your code is <b>ABCD-1234</b>. Open the sign-in page and enter it.</p>
+<p><a id="go" href="https://microsoft.com/devicelogin">Open the sign-in page</a></p>
+<p class="note">The link goes to the real Microsoft device sign-in page unless the address of this page ends with <code>?to=</code> and another device-code page address.</p>
+</div>
+<script src="from-message.js"></script>
+</body>
+</html>
